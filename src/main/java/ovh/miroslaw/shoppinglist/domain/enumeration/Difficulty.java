@@ -4,5 +4,16 @@ package ovh.miroslaw.shoppinglist.domain.enumeration;
  * The Difficulty enumeration.
  */
 public enum Difficulty {
-    EASY, MODERATE, HARD
+    /**
+     * Easy difficulty.
+     */
+    EASY,
+    /**
+     * Moderate difficulty.
+     */
+    MODERATE,
+    /**
+     * Hard difficulty.
+     */
+    HARD
 }

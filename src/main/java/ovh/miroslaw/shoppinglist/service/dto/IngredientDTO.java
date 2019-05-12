@@ -1,7 +1,12 @@
 package ovh.miroslaw.shoppinglist.service.dto;
-import javax.validation.constraints.*;
+
+import org.apache.commons.lang3.EnumUtils;
+import ovh.miroslaw.shoppinglist.domain.enumeration.UnitOfMeasure;
+
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 /**
  * A DTO for the Ingredient entity.
@@ -13,14 +18,40 @@ public class IngredientDTO implements Serializable {
     @NotNull
     private String name;
 
+    private Integer popularity;
 
-    private Long unitOfMeasureId;
+    @Positive(message = "Amount should have positive value")
+    private Float amount;
+    private String unit;
 
-    private Long shoppingListId;
+    public String getUnit() {
+        return unit;
+    }
 
-    private Long ingredientsId;
+    public void setUnit(String unit) {
 
-    private Long purchasedIngredientsId;
+        if (EnumUtils.isValidEnumIgnoreCase(UnitOfMeasure.class, unit)) {
+            this.unit = unit.toUpperCase();
+        } else {
+            this.unit = UnitOfMeasure.PIECE.toString();
+        }
+    }
+
+    public Float getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Float amount) {
+        this.amount = amount;
+    }
+
+    public Integer getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Integer popularity) {
+        this.popularity = popularity;
+    }
 
     public Long getId() {
         return id;
@@ -36,38 +67,6 @@ public class IngredientDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Long getUnitOfMeasureId() {
-        return unitOfMeasureId;
-    }
-
-    public void setUnitOfMeasureId(Long unitOfMeasureId) {
-        this.unitOfMeasureId = unitOfMeasureId;
-    }
-
-    public Long getShoppingListId() {
-        return shoppingListId;
-    }
-
-    public void setShoppingListId(Long shoppingListId) {
-        this.shoppingListId = shoppingListId;
-    }
-
-    public Long getIngredientsId() {
-        return ingredientsId;
-    }
-
-    public void setIngredientsId(Long ingredientsId) {
-        this.ingredientsId = ingredientsId;
-    }
-
-    public Long getPurchasedIngredientsId() {
-        return purchasedIngredientsId;
-    }
-
-    public void setPurchasedIngredientsId(Long purchasedIngredientsId) {
-        this.purchasedIngredientsId = purchasedIngredientsId;
     }
 
     @Override
@@ -94,12 +93,11 @@ public class IngredientDTO implements Serializable {
     @Override
     public String toString() {
         return "IngredientDTO{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", unitOfMeasure=" + getUnitOfMeasureId() +
-            ", shoppingList=" + getShoppingListId() +
-            ", ingredients=" + getIngredientsId() +
-            ", purchasedIngredients=" + getPurchasedIngredientsId() +
-            "}";
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", popularity=" + popularity +
+               ", amount=" + amount +
+               ", unit='" + unit + '\'' +
+               '}';
     }
 }

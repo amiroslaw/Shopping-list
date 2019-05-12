@@ -1,10 +1,9 @@
 package ovh.miroslaw.shoppinglist.repository;
 
-import ovh.miroslaw.shoppinglist.domain.Ingredient;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import ovh.miroslaw.shoppinglist.domain.Ingredient;
 
-@SuppressWarnings("unused")
 @Repository
 public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
 

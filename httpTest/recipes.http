@@ -1,0 +1,56 @@
+###
+GET {{api}}/recipes/public?recommendation=false
+
+###
+GET {{api}}/recipes/1
+
+### get chicken
+GET {{api}}/recipes/public?recommendation=false&filter=Chicken
+
+###
+GET {{api}}/recipes?recommendation=true
+Authorization: Bearer {{auth}}
+###
+GET {{api}}/recipes?recommendation=false
+Authorization: Bearer {{auth}}
+
+###
+POST {{api}}/recipes
+Authorization: Bearer {{auth}}
+Content-Type: application/json
+
+{
+    "description": "string",
+    "difficulty": "EASY",
+    "imgUrl": "string",
+    "title": "string2",
+    "visible": true,
+    "ingredients": [
+        {
+            "name": "string",
+            "popularity": 1,
+            "amount": 4,
+            "unit": "PIECE"
+        }
+    ]
+}
+
+### error
+PUT {{api}}/recipes/1
+Authorization: Bearer {{auth}}
+Content-Type: application/json
+
+{
+    "id": 111,
+    "description": "string",
+    "difficulty": "EASY",
+    "imgUrl": "string",
+    "title": "string2",
+    "ingredients": [
+        {
+            "amount": 4,
+            "name": "string"
+        }
+    ],
+    "visible": true
+}

@@ -1,0 +1,25 @@
+### get token
+GET {{api}}/authenticate
+
+### get token
+GET {{api}}/account
+
+### get token
+POST {{api}}/authenticate
+Content-Type: application/json
+
+{
+  "password": "passff",
+  "username": "hulio",
+  "rememberMe": "true"
+}
+
+> {%
+    client.global.set("auth", response.body.id_token);
+%}
+
+###
+GET {{api}}/unit-of-measures
+
+###
+GET {{api}}/users?page=0&size=20&sort=id,asc

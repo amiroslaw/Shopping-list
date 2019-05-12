@@ -1,21 +1,33 @@
 package ovh.miroslaw.shoppinglist.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
-import java.io.Serializable;
-import java.util.*;
-
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+/**
+ * Entity class for Recipe.
+ */
 @Entity
 @Table(name = "recipe")
 public class Recipe implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +38,7 @@ public class Recipe implements Serializable {
     @Column(name = "title", length = 50, nullable = false)
     private String title;
 
+    @NotNull
     @Column(name = "description")
     private String description;
 
@@ -39,20 +52,15 @@ public class Recipe implements Serializable {
     @Column(name = "difficulty")
     private Difficulty difficulty;
 
-    @ManyToMany
-    @JoinTable(name = "recipe_ingredients",
-        joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredients_id", referencedColumnName = "id"))
-//    @ManyToMany(mappedBy = "recipes")
-//    @JsonIgnore
-    @MapKey(name = "amount")
-    private Map<Float, Ingredient> ingredients = new HashMap<>();
-    //    private Map<Ingredient, Float> ingredients = new HashMap<>();
-    //    private Set<Ingredient> ingredients = new HashSet<>();
-//    @Column(name = "amount")
-//    private Float amount;
-    @ManyToMany(mappedBy = "recipes")
+    @ManyToMany(cascade = {CascadeType.MERGE})
+    @JoinTable(name = "recipe_ingredient",
+               joinColumns = @JoinColumn(name = "recipe_id"),
+               inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
+    private Set<Ingredient> ingredients = new HashSet<>();
+
     @JsonIgnore
+    @ManyToMany(mappedBy = "recipes")
     private Set<User> users = new HashSet<>();
 
     public Long getId() {
@@ -80,30 +88,12 @@ public class Recipe implements Serializable {
         return description;
     }
 
-    public Recipe description(String description) {
-        this.description = description;
-        return this;
-    }
-
-//    public Float getAmount() {
-//        return amount;
-//    }
-//
-//    public void setAmount(Float amount) {
-//        this.amount = amount;
-//    }
-
     public void setDescription(String description) {
         this.description = description;
     }
 
     public String getImgUrl() {
         return imgUrl;
-    }
-
-    public Recipe imgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
-        return this;
     }
 
     public void setImgUrl(String imgUrl) {
@@ -114,11 +104,6 @@ public class Recipe implements Serializable {
         return visible;
     }
 
-    public Recipe visible(Boolean visible) {
-        this.visible = visible;
-        return this;
-    }
-
     public void setVisible(Boolean visible) {
         this.visible = visible;
     }
@@ -127,64 +112,27 @@ public class Recipe implements Serializable {
         return difficulty;
     }
 
-    public Recipe difficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
-        return this;
-    }
-
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
-    public Map<Float, Ingredient> getIngredients() {
+    public Set<Ingredient> getIngredients() {
         return ingredients;
     }
-//
-//    public Recipe ingredients(Map<Ingredient, Float> ingredients) {
-//        this.ingredients = ingredients;
-//        return this;
-//    }
-//
-//    public void setIngredients(Map<Ingredient, Float> ingredients) {
-//        this.ingredients = ingredients;
-//    }
 
-//    public Recipe addIngredients(Ingredient ingredient, Float amount) {
-//        this.ingredients.put(ingredient, amount);
-//        ingredient.getRecipes().add(this);
-//        return this;
-//    }
-//
-//    public Recipe removeIngredients(Ingredient ingredient) {
-//        this.ingredients.remove(ingredient);
-//        ingredient.getRecipes().remove(this);
-//        return this;
-//    }
-//
-//    public Set<Ingredient> getIngredients() {
-//        return ingredients;
-//    }
-//
-//    public Recipe ingredients(Set<Ingredient> ingredients) {
-//        this.ingredients = ingredients;
-//        return this;
-//    }
-//
-//    public Recipe addIngredients(Ingredient ingredient) {
-//        this.ingredients.add(ingredient);
-//        ingredient.getRecipes().add(this);
-//        return this;
-//    }
-//
-//    public Recipe removeIngredients(Ingredient ingredient) {
-//        this.ingredients.remove(ingredient);
-//        ingredient.getRecipes().remove(this);
-//        return this;
-//    }
+    public void setIngredients(Set<Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
 
-//    public void setIngredients(Set<Ingredient> ingredients) {
-//        this.ingredients = ingredients;
-//    }
+    public void addIngredient(Ingredient ingredient) {
+        this.ingredients.add(ingredient);
+        ingredient.getRecipe().add(this);
+    }
+
+    public void removeIngredient(Ingredient ingredient) {
+        this.ingredients.remove(ingredient);
+        ingredient.getRecipe().remove(this);
+    }
 
     public Set<User> getUsers() {
         return users;
@@ -195,17 +143,17 @@ public class Recipe implements Serializable {
         return this;
     }
 
-    public Recipe addUsers(User uUser) {
-        this.users.add(uUser);
-        uUser.getRecipes().add(this);
+    public Recipe addUser(User user) {
+        this.users.add(user);
+        user.getRecipes().add(this);
         return this;
     }
 
-//    public Recipe removeUsers(User uUser) {
-//        this.users.remove(uUser);
-//        uUser.getRecipes().remove(this);
-//        return this;
-//    }
+    public Recipe removeUsers(User user) {
+        this.users.remove(user);
+        user.getRecipes().remove(this);
+        return this;
+    }
 
     public void setUsers(Set<User> users) {
         this.users = users;
@@ -234,12 +182,11 @@ public class Recipe implements Serializable {
     @Override
     public String toString() {
         return "Recipe{" +
-            "id=" + getId() +
-            ", title='" + getTitle() + "'" +
-            ", description='" + getDescription() + "'" +
-            ", imgUrl='" + getImgUrl() + "'" +
-            ", visible='" + isVisible() + "'" +
-            ", difficulty='" + getDifficulty() + "'" +
-            "}";
+               "id=" + getId() +
+               ", title='" + getTitle() + "'" +
+               ", description='" + getDescription() + "'" +
+               ", imgUrl='" + getImgUrl() + "'" +
+               ", visible='" + isVisible() + "'" +
+               "}";
     }
 }

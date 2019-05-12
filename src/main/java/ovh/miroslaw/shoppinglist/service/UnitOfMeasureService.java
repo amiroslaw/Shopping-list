@@ -1,23 +1,17 @@
 package ovh.miroslaw.shoppinglist.service;
 
-import ovh.miroslaw.shoppinglist.service.dto.UnitOfMeasureDTO;
-
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * The interface Unit of measure service.
+ */
 public interface UnitOfMeasureService {
 
-    UnitOfMeasureDTO save(UnitOfMeasureDTO unitOfMeasureDTO);
-
-    List<UnitOfMeasureDTO> findAll();
     /**
-     * Get all the UnitOfMeasureDTO where Ingredient is null.
+     * Finds all the unit of measure.
      *
-     * @return the list of entities
+     * @return the list of the stings of unit of measure
      */
-    List<UnitOfMeasureDTO> findAllWhereIngredientIsNull();
+    List<String> findAll();
 
-    Optional<UnitOfMeasureDTO> findOne(Long id);
-
-    void delete(Long id);
 }
