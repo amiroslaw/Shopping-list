@@ -45,7 +45,7 @@ public class Recipe implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "ingredients_id", referencedColumnName = "id"))
 //    @ManyToMany(mappedBy = "recipes")
 //    @JsonIgnore
-    @MapKey(name = "amount")
+    @MapKeyColumn(name = "amount")
     private Map<Float, Ingredient> ingredients = new HashMap<>();
     //    private Map<Ingredient, Float> ingredients = new HashMap<>();
     //    private Set<Ingredient> ingredients = new HashSet<>();
@@ -148,6 +148,11 @@ public class Recipe implements Serializable {
 //    public void setIngredients(Map<Ingredient, Float> ingredients) {
 //        this.ingredients = ingredients;
 //    }
+//
+    public void setIngredients(Map<Float, Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
+
 
 //    public Recipe addIngredients(Ingredient ingredient, Float amount) {
 //        this.ingredients.put(ingredient, amount);
@@ -195,9 +200,9 @@ public class Recipe implements Serializable {
         return this;
     }
 
-    public Recipe addUsers(User uUser) {
-        this.users.add(uUser);
-        uUser.getRecipes().add(this);
+    public Recipe addUser(User user) {
+        this.users.add(user);
+        user.getRecipes().add(this);
         return this;
     }
 

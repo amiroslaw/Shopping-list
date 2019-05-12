@@ -27,8 +27,17 @@ public class Ingredient implements Serializable {
     @JoinColumn(unique = true)
     private UnitOfMeasure unitOfMeasure;
 
-//    @ManyToMany(mappedBy = "ingredients")
+    private Integer popularity;
+
+    public Integer getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Integer popularity) {
+        this.popularity = popularity;
+    }
 //    @JsonIgnore
+//    @ManyToMany(mappedBy = "ingredients")
 //    @ManyToMany
 //    @JoinTable(name = "recipe_ingredients",
 //        joinColumns = @JoinColumn(name = "ingredients_id", referencedColumnName = "id"),
@@ -37,7 +46,6 @@ public class Ingredient implements Serializable {
 //    private Map<Float, Ingredient> recipes = new HashMap<>();
 //    private Set<Recipe> recipes = new HashSet<>();
 
-    private Float amount;
     @ManyToMany(mappedBy = "userIngredients")
     @JsonIgnore
     private Set<User> userIngredients = new HashSet<>();
@@ -88,7 +96,7 @@ public class Ingredient implements Serializable {
 //        return recipes;
 //    }
 //
-//    public void setRecipe(Set<Recipe> recipes) {
+//    public void setRecipes(Map<Float, Ingredient> recipes) {
 //        this.recipes = recipes;
 //    }
 //
@@ -108,6 +116,7 @@ public class Ingredient implements Serializable {
 //        recipe.getIngredients().remove(this);
 //        return this;
 //    }
+    ///// SET
 //    public Set<Recipe> getRecipes() {
 //        return recipes;
 //    }

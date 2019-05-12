@@ -13,6 +13,7 @@ public class IngredientDTO implements Serializable {
     @NotNull
     private String name;
 
+    private Integer popularity;
 
     private Long unitOfMeasureId;
 
@@ -84,6 +85,14 @@ public class IngredientDTO implements Serializable {
             return false;
         }
         return Objects.equals(getId(), ingredientDTO.getId());
+    }
+
+    public Integer getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(Integer popularity) {
+        this.popularity = popularity;
     }
 
     @Override
