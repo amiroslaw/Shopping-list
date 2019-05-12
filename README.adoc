@@ -1,0 +1,8 @@
+= Shopping List
+
+The web application that helps you create meal plans, find recipes based on that meal, and organize grocery lists around those recipes and what you have in your fridge.
+This repository has only backend part.
+
+=== Used technology
+
+Spring Boot, Spring MVC, Spring Security, Java 11, Hibernate, H2, mySql, Java JWT

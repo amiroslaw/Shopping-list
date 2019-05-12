@@ -1,6 +1,7 @@
 HELP.md
 /target/
 !.mvn/wrapper/maven-wrapper.jar
+*.private.env.json
 
 ### STS ###
 .apt_generated

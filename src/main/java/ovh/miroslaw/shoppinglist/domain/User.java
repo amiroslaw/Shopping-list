@@ -2,21 +2,33 @@ package ovh.miroslaw.shoppinglist.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.BatchSize;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
-
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.*;
-import java.time.Instant;
 
+/**
+ * Entity class for User.
+ */
 @Entity
-@Table(name = "user")
+@Table(name = "user_table")
 public class User implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,14 +45,6 @@ public class User implements Serializable {
     @Column(name = "password_hash", length = 60, nullable = false)
     private String password;
 
-    @Size(max = 50)
-    @Column(name = "first_name", length = 50)
-    private String firstName;
-
-    @Size(max = 50)
-    @Column(name = "last_name", length = 50)
-    private String lastName;
-
     @Email
     @Size(min = 5, max = 254)
     @Column(length = 254, unique = true)
@@ -53,10 +57,6 @@ public class User implements Serializable {
     @Size(min = 2, max = 6)
     @Column(name = "lang_key", length = 6)
     private String langKey;
-
-    @Size(max = 256)
-    @Column(name = "image_url", length = 256)
-    private String imageUrl;
 
     @Size(max = 20)
     @Column(name = "activation_key", length = 20)
@@ -71,28 +71,68 @@ public class User implements Serializable {
     @Column(name = "reset_date")
     private Instant resetDate = null;
 
+    @CreatedDate
+    @Column(name = "created_date", updatable = false)
+    @JsonIgnore
+    private Instant createdDate = Instant.now();
+
     @ManyToMany
-    @JoinTable(name = "user_ingredient",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
+    @JoinTable(name = "userIngredient_ingredient",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
     private Set<Ingredient> userIngredients = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "shopping_list",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
-    private Set<Ingredient> shoppingList = new HashSet<>();
+    public Ingredient addUserIngredient(Ingredient ingredient) {
+        this.userIngredients.add(ingredient);
+        ingredient.getUserIngredients().add(this);
+        return ingredient;
+    }
+
+    public void removeUserIngredient(Ingredient ingredient) {
+        this.userIngredients.remove(ingredient);
+        ingredient.getUserIngredients().remove(this);
+    }
 
     @ManyToMany
-    @JoinTable(name = "purchased_ingredients",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
-    private Set<Ingredient> purchasedIngredients = new HashSet<>();
+    @JoinTable(name = "shoppingList_ingredient",
+               joinColumns = @JoinColumn(name = "shopping_ingredient_id"),
+               inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
+    private Set<Ingredient> shoppingIngredients = new HashSet<>();
+
+    public Ingredient addShoppingIngredient(Ingredient ingredient) {
+        this.shoppingIngredients.add(ingredient);
+        ingredient.getShoppingIngredients().add(this);
+        return ingredient;
+    }
+
+    public void removeShoppingIngredient(Ingredient ingredient) {
+        this.shoppingIngredients.remove(ingredient);
+        ingredient.getShoppingIngredients().remove(this);
+    }
 
     @ManyToMany
+    @JoinTable(name = "shopping_purchased_ingredient",
+               joinColumns = @JoinColumn(name = "shopping_purchased_id"),
+               inverseJoinColumns = @JoinColumn(name = "ingredient_id")
+    )
+    private Set<Ingredient> shoppingPurchasedIngredients = new HashSet<>();
+
+    public void addShoppingPurchasedIngredient(Ingredient ingredient) {
+        this.shoppingPurchasedIngredients.add(ingredient);
+        ingredient.getShoppingPurchasedIngredients().add(this);
+    }
+
+    public void removeShoppingPurchasedIngredient(Ingredient ingredient) {
+        this.shoppingPurchasedIngredients.remove(ingredient);
+        ingredient.getShoppingPurchasedIngredients().remove(this);
+    }
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "user_recipes",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "recipes_id", referencedColumnName = "id"))
+               joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+               inverseJoinColumns = @JoinColumn(name = "recipes_id", referencedColumnName = "id"))
     private Set<Recipe> recipes = new HashSet<>();
 
     @JsonIgnore
@@ -120,6 +160,10 @@ public class User implements Serializable {
         this.login = login.toLowerCase();
     }
 
+    public Instant getCreatedDate() {
+        return createdDate;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -128,36 +172,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public boolean getActivated() {
@@ -208,70 +228,68 @@ public class User implements Serializable {
         this.authorities = authorities;
     }
 
-    public Set<Ingredient> getShoppingList() {
-        return shoppingList;
+    public Set<Ingredient> getShoppingIngredients() {
+        return shoppingIngredients;
     }
 
-    public void addIngredientToShoppingList(Ingredient ingredient) {
-        shoppingList.add(ingredient);
+    public void setShoppingIngredients(Set<Ingredient> ingredients) {
+        this.shoppingIngredients = ingredients;
     }
 
-    public void removeIngredientFromShoppingList(Ingredient ingredient) {
-        shoppingList.remove(ingredient);
+    public User shoppingList(Set<Ingredient> ingredients) {
+        this.shoppingIngredients = ingredients;
+        return this;
     }
-
-    public void setShoppingList(Set<Ingredient> ingredients) {
-        this.shoppingList = ingredients;
-    }
-
 
     public Set<Ingredient> getUserIngredients() {
         return userIngredients;
     }
 
-    public void addUserIngredient(Ingredient ingredient) {
-        userIngredients.add(ingredient);
-    }
-
-    public void removeUserIngredient(Ingredient ingredient) {
-        userIngredients.remove(ingredient);
-    }
-
-    public void setUserIngredients(Set<Ingredient> userIngredients) {
+    public User userIngredients(Set<Ingredient> userIngredients) {
         this.userIngredients = userIngredients;
+        return this;
     }
 
-    public Set<Ingredient> getPurchasedIngredients() {
-        return purchasedIngredients;
+    public Set<Ingredient> getShoppingPurchasedIngredients() {
+        return shoppingPurchasedIngredients;
     }
 
-    public void addPurchasedIngredient(Ingredient ingredient) {
-        purchasedIngredients.add(ingredient);
+    public void setShoppingPurchasedIngredients(Set<Ingredient> purchasedIngredients) {
+        this.shoppingPurchasedIngredients = purchasedIngredients;
     }
 
-    public void setPurchasedIngredients(Set<Ingredient> purchasedIngredients) {
-        this.purchasedIngredients = purchasedIngredients;
+    public User addPurchasedIngredient(Ingredient ingredient) {
+        shoppingPurchasedIngredients.add(ingredient);
+        return this;
     }
 
-    public void removeIngredientFromPurchasedList(Ingredient ingredient) {
-        purchasedIngredients.remove(ingredient);
+    public User removePurchasedIngredient(Ingredient ingredient) {
+        shoppingPurchasedIngredients.remove(ingredient);
+        return this;
     }
 
     public Set<Recipe> getRecipes() {
         return recipes;
     }
 
-    public void addRecipes(Recipe recipe) {
-        this.recipes.add(recipe);
-    }
-
-    public void removeRecipes(Recipe recipe) {
-        this.recipes.remove(recipe);
-        recipe.getUsers().remove(this);
-    }
-
     public void setRecipes(Set<Recipe> recipes) {
         this.recipes = recipes;
+    }
+
+    public User recipes(Set<Recipe> recipes) {
+        this.recipes = recipes;
+        return this;
+    }
+
+    public User addRecipe(Recipe recipe) {
+        this.recipes.add(recipe);
+        return this;
+    }
+
+    public User removeRecipe(Recipe recipe) {
+        this.recipes.remove(recipe);
+        recipe.getUsers().remove(this);
+        return this;
     }
 
     @Override
@@ -279,27 +297,28 @@ public class User implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof User)) {
             return false;
         }
-
         User user = (User) o;
-        return !(user.getId() == null || getId() == null) && Objects.equals(getId(), user.getId());
+        return activated == user.activated && Objects.equals(id, user.id) && Objects.equals(login,
+            user.login) && Objects.equals(password, user.password) && Objects.equals(email,
+            user.email) && Objects.equals(langKey, user.langKey) && Objects.equals(activationKey,
+            user.activationKey) && Objects.equals(resetKey, user.resetKey) && Objects.equals(
+            resetDate, user.resetDate) && Objects.equals(createdDate, user.createdDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(id, login, password, email, activated, langKey, activationKey, resetKey, resetDate,
+            createdDate);
     }
 
     @Override
     public String toString() {
         return "User{" +
             "login='" + login + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
-            ", imageUrl='" + imageUrl + '\'' +
             ", activated='" + activated + '\'' +
             ", langKey='" + langKey + '\'' +
             ", activationKey='" + activationKey + '\'' +

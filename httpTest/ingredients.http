@@ -1,0 +1,66 @@
+###
+GET {{api}}/ingredients
+###
+GET {{api}}/ingredients/1
+###
+GET {{api}}/unit-of-measures
+### USER
+###
+GET {{api}}/user-ingredients
+Authorization: Bearer {{auth}}
+###
+POST {{api}}/user-ingredients
+Authorization: Bearer {{auth}}
+Content-Type: application/json
+
+{
+    "amount": 5,
+    "name": "User ing Test",
+    "unit": "kg"
+}
+
+###
+PUT {{api}}/user-ingredients/1
+Authorization: Bearer {{auth}}
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "dark bread",
+    "popularity": 2,
+    "amount": 3.0,
+    "unit": "PIECE"
+}
+
+### PURCHASED
+###
+GET {{api}}/purchased-lists/1/ingredients
+Authorization: Bearer {{auth}}
+
+###
+PATCH {{api}}/purchased-lists/1/ingredients/2
+Authorization: Bearer {{auth}}
+Content-Type: application/json
+
+{
+    "id": 2,
+    "amount": 5,
+    "name": "Shopping ing Test"
+}
+
+
+### SHOPPINGLIST
+###
+GET {{api}}/shopping-lists/1/ingredients
+Authorization: Bearer {{auth}}
+
+###
+POST {{api}}/shopping-lists/1/ingredients
+Authorization: Bearer {{auth}}
+Content-Type: application/json
+
+{
+    "amount": 5,
+    "name": "Shopping ing Test"
+}
+

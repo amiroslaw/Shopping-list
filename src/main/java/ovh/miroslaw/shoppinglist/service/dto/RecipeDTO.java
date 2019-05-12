@@ -3,7 +3,6 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.*;
 
-import ovh.miroslaw.shoppinglist.domain.Ingredient;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 
 /**
@@ -17,6 +16,7 @@ public class RecipeDTO implements Serializable {
     @Size(max = 50)
     private String title;
 
+    @NotNull
     private String description;
 
     private String imgUrl;
@@ -25,9 +25,7 @@ public class RecipeDTO implements Serializable {
 
     private Difficulty difficulty;
 
-
-    private Map<Float, Ingredient> ingredients = new HashMap<>();
-//    private Set<IngredientDTO> ingredients = new HashSet<>();
+    private Set<IngredientDTO> ingredients = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -77,12 +75,12 @@ public class RecipeDTO implements Serializable {
         this.difficulty = difficulty;
     }
 
-//    public Set<IngredientDTO> getIngredients() {
-//        return ingredients;
-//    }
-//    public void setIngredients(Set<IngredientDTO> ingredients) {
-//        this.ingredients = ingredients;
-//    }
+    public Set<IngredientDTO> getIngredients() {
+        return ingredients;
+    }
+    public void setIngredients(Set<IngredientDTO> ingredients) {
+        this.ingredients = ingredients;
+    }
 
     @Override
     public boolean equals(Object o) {

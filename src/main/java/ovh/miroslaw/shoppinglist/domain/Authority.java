@@ -1,23 +1,30 @@
 package ovh.miroslaw.shoppinglist.domain;
 
+import java.io.Serializable;
+import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
-
+/**
+ * Entity class for Authority.
+ */
 @Entity
 public class Authority implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     @NotNull
     @Size(max = 50)
     @Id
     @Column(length = 50)
     private String name;
+
+    public Authority() {
+    }
+
+    public Authority(String user) {
+        this.name = user;
+    }
 
     public String getName() {
         return name;
@@ -38,7 +45,7 @@ public class Authority implements Serializable {
 
         Authority authority = (Authority) o;
 
-        return !(name != null ? !name.equals(authority.name) : authority.name != null);
+        return Objects.equals(name, authority.name);
     }
 
     @Override
@@ -49,7 +56,7 @@ public class Authority implements Serializable {
     @Override
     public String toString() {
         return "Authority{" +
-            "name='" + name + '\'' +
-            "}";
+               "name='" + name + '\'' +
+               "}";
     }
 }

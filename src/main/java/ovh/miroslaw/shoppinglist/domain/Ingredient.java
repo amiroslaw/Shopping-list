@@ -1,169 +1,91 @@
 package ovh.miroslaw.shoppinglist.domain;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.*;
-import javax.validation.constraints.*;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
+/**
+ * Entity class for Ingredient.
+ */
 @Entity
 @Table(name = "ingredient")
 public class Ingredient implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(name = "name", nullable = false)
-    private String name;
+    @ManyToMany(mappedBy = "shoppingIngredients")
+    private Set<User> shoppingIngredients = new HashSet<>();
 
-    @OneToOne
-    @JoinColumn(unique = true)
-    private UnitOfMeasure unitOfMeasure;
+    @ManyToMany(mappedBy = "ingredients")
+    private Set<Recipe> recipe = new HashSet<>();
 
-//    @ManyToMany(mappedBy = "ingredients")
-//    @JsonIgnore
-//    @ManyToMany
-//    @JoinTable(name = "recipe_ingredients",
-//        joinColumns = @JoinColumn(name = "ingredients_id", referencedColumnName = "id"),
-//        inverseJoinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"))
-//    @MapKey(name = "amount")
-//    private Map<Float, Ingredient> recipes = new HashMap<>();
-//    private Set<Recipe> recipes = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "amount_id")
+    private IngredientAmount ingredientAmount;
 
-    private Float amount;
+    @ManyToOne
+    @JoinColumn(name = "name_id")
+    private IngredientName ingredientName;
+
     @ManyToMany(mappedBy = "userIngredients")
-    @JsonIgnore
     private Set<User> userIngredients = new HashSet<>();
 
-    @ManyToMany(mappedBy = "shoppingList")
-    @JsonIgnore
-    private Set<User> shoppingList = new HashSet<>();
+    @ManyToMany(mappedBy = "shoppingPurchasedIngredients")
+    private Set<User> shoppingPurchasedIngredients = new HashSet<>();
 
-    @ManyToMany(mappedBy = "purchasedIngredients")
-    @JsonIgnore
-    private Set<User> purchasedIngredients = new HashSet<>();
+    public Set<User> getShoppingPurchasedIngredients() {
+        return shoppingPurchasedIngredients;
+    }
+
+    public Set<Recipe> getRecipe() {
+        return recipe;
+    }
+
+    public void setRecipe(Set<Recipe> recipe) {
+        this.recipe = recipe;
+    }
+
+    public IngredientAmount getIngredientAmount() {
+        return ingredientAmount;
+    }
+
+    public void setIngredientAmount(IngredientAmount ingredientAmount) {
+        this.ingredientAmount = ingredientAmount;
+    }
+
+    public IngredientName getIngredientName() {
+        return ingredientName;
+    }
+
+    public void setIngredientName(IngredientName ingredientsName) {
+        this.ingredientName = ingredientsName;
+    }
 
     public Long getId() {
         return id;
+    }
+
+    public Set<User> getUserIngredients() {
+        return userIngredients;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Ingredient name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public UnitOfMeasure getUnitOfMeasure() {
-        return unitOfMeasure;
-    }
-
-    public Ingredient unitOfMeasure(UnitOfMeasure unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
-        return this;
-    }
-
-    public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
-    }
-
-//    public Map<Recipe> getRecipes() {
-//        return recipes;
-//    }
-//
-//    public void setRecipe(Set<Recipe> recipes) {
-//        this.recipes = recipes;
-//    }
-//
-//    public Ingredient recipes(Set<Recipe> recipes) {
-//        this.recipes = recipes;
-//        return this;
-//    }
-//
-//    public Ingredient addRecipe(Recipe recipe) {
-//        this.recipes.add(recipe);
-////        recipe.getIngredients().add(this);
-//        return this;
-//    }
-//
-//    public Ingredient removeRecipe(Recipe recipe) {
-//        this.recipes.remove(recipe);
-//        recipe.getIngredients().remove(this);
-//        return this;
-//    }
-//    public Set<Recipe> getRecipes() {
-//        return recipes;
-//    }
-//
-//    public void setRecipe(Set<Recipe> recipes) {
-//        this.recipes = recipes;
-//    }
-//
-//    public Ingredient recipes(Set<Recipe> recipes) {
-//        this.recipes = recipes;
-//        return this;
-//    }
-//
-//    public Ingredient addRecipe(Recipe recipe) {
-//        this.recipes.add(recipe);
-////        recipe.getIngredients().add(this);
-//        return this;
-//    }
-//
-//    public Ingredient removeRecipe(Recipe recipe) {
-//        this.recipes.remove(recipe);
-//        recipe.getIngredients().remove(this);
-//        return this;
-//    }
-
-    public Ingredient addUserToShoppingList(User user) {
-        shoppingList.add(user);
-        return this;
-    }
-
-    public Ingredient removeUserfromPurchasedIngredients(User user) {
-        purchasedIngredients.remove(user);
-        user.getPurchasedIngredients().remove(this);
-        return this;
-    }
-
-    public Ingredient removeUserfromShoppingList(User user) {
-        shoppingList.remove(user);
-        user.getShoppingList().remove(this);
-        return this;
-    }
-
-    public Ingredient removeUserfromUserIngredients(User user) {
-        userIngredients.remove(user);
-        user.getUserIngredients().remove(this);
-        return this;
-    }
-
-    public Ingredient addUserToPurchasedIngredients(User user) {
-        purchasedIngredients.add(user);
-        return this;
-    }
-
-    public Ingredient addUserToUserIngredients(User user) {
-        userIngredients.add(user);
-        return this;
+    public Set<User> getShoppingIngredients() {
+        return shoppingIngredients;
     }
 
     @Override
@@ -174,23 +96,17 @@ public class Ingredient implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Ingredient ingredient = (Ingredient) o;
-        if (ingredient.getId() == null || getId() == null) {
-            return false;
-        }
-        return Objects.equals(getId(), ingredient.getId());
+        Ingredient that = (Ingredient) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
-        return "Ingredient{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            "}";
+        return "Ingredient{id=" + id + '}';
     }
 }
