@@ -1,5 +1,6 @@
 package ovh.miroslaw.shoppinglist.service.impl;
 
+import ovh.miroslaw.shoppinglist.domain.Ingredient;
 import ovh.miroslaw.shoppinglist.service.RecipeService;
 import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.repository.RecipeRepository;
@@ -13,9 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,22 +42,30 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional(readOnly = true)
+    public Map<Ingredient, Float> findRecipeIngredients(Long recipeId) {
+        return recipeRepository.findOneWithEagerIngredients(recipeId)
+            .map(Recipe::getIngredients)
+            .orElse(Collections.emptyMap());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<RecipeDTO> findAll() {
         log.debug("Request to get all Recipes");
-        return recipeRepository.findAllWithEagerRelationships().stream()
+        return recipeRepository.findAllWithEagerIngredients().stream()
             .map(recipeMapper::toDto)
             .collect(Collectors.toCollection(LinkedList::new));
     }
 
     public Page<RecipeDTO> findAllWithEagerRelationships(Pageable pageable) {
-        return recipeRepository.findAllWithEagerRelationships(pageable).map(recipeMapper::toDto);
+        return recipeRepository.findAllWithEagerIngredients(pageable).map(recipeMapper::toDto);
     }
     
     @Override
     @Transactional(readOnly = true)
     public Optional<RecipeDTO> findOne(Long id) {
         log.debug("Request to get Recipe : {}", id);
-        return recipeRepository.findOneWithEagerRelationships(id)
+        return recipeRepository.findOneWithEagerIngredients(id)
             .map(recipeMapper::toDto);
     }
 

@@ -1,5 +1,9 @@
 package ovh.miroslaw.shoppinglist.repository;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import ovh.miroslaw.shoppinglist.domain.Ingredient;
+import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.domain.User;
 
 import org.springframework.data.domain.Page;
@@ -7,9 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
-import java.time.Instant;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -32,4 +36,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneWithAuthoritiesByEmail(String email);
 
     Page<User> findAllByLoginNot(Pageable pageable, String login);
+
+    @Query(value = "select distinct user from User user left join fetch user.shoppingList")
+    List<User> findAllUsersWithEagerShoppingList();
+
+    @Query("select  user from User user left join fetch user.shoppingList where user.id =:id")
+    Optional<User> findUserWithEagerShoppingList(@Param("id") Long id);
+
+    @Query("select  user from User user left join fetch user.userIngredients where user.id =:id")
+    Optional<User> findUserWithEagerIngredients(@Param("id") Long id);
+
+    @Query("select user from User user left join fetch user.purchasedIngredients i where user.id =:id")
+    Optional<User> findUserWithEagerPurchasedIngredients(@Param("id") Long id);
+
+    @Query("select i from User user left join user.purchasedIngredients i where user.id =:id")
+    List<Ingredient> findPurchasedIngredients(@Param("id") Long id);
+
+    @Query("select i from User user left join user.recipes i where user.id =:id")
+    List<Recipe> findRecipes(@Param("id") Long id);
 }

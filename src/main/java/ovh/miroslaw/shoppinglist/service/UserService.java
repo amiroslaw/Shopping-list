@@ -1,34 +1,78 @@
 package ovh.miroslaw.shoppinglist.service;
 
-import ovh.miroslaw.shoppinglist.config.Constants;
-import ovh.miroslaw.shoppinglist.domain.Authority;
+import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.domain.User;
-import ovh.miroslaw.shoppinglist.repository.AuthorityRepository;
 import ovh.miroslaw.shoppinglist.repository.UserRepository;
-import ovh.miroslaw.shoppinglist.service.dto.UserDTO;
-import ovh.miroslaw.shoppinglist.service.util.RandomUtil;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
+import ovh.miroslaw.shoppinglist.service.dto.RecipeDTO;
+import ovh.miroslaw.shoppinglist.service.mapper.IngredientMapper;
+import ovh.miroslaw.shoppinglist.service.mapper.RecipeMapper;
+import ovh.miroslaw.shoppinglist.service.mapper.UsersIngredientMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserService {
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final UserRepository userRepository;
+    private final UsersIngredientMapper usersIngredientMapper;
+    private final IngredientMapper ingredientMapper;
+    private final RecipeMapper recipeMapper;
 
-//    private final Logger log = LoggerFactory.getLogger(UserService.class);
+    public UserService(UserRepository userRepository, UsersIngredientMapper usersIngredientMapper, IngredientMapper ingredientMapper, RecipeMapper recipeMapper) {
+        this.userRepository = userRepository;
+        this.usersIngredientMapper = usersIngredientMapper;
+        this.ingredientMapper = ingredientMapper;
+        this.recipeMapper = recipeMapper;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<IngredientDTO, Float> findUserShoppingList(Long userId) {
+        return userRepository.findUserWithEagerShoppingList(userId)
+            .map(User::getShoppingList)
+            .or(() -> Optional.of(Collections.emptyMap()))
+            .get().entrySet().stream()
+            .collect(Collectors.toMap(
+                e -> ingredientMapper.toDto(e.getKey()),
+                e -> e.getValue()
+            ));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<IngredientDTO, Float> findUserIngredients(Long userId) {
+        return userRepository.findUserWithEagerIngredients(userId)
+            .map(User::getUserIngredients)
+            .or(() -> Optional.of(Collections.emptyMap()))
+            .get().entrySet().stream()
+            .collect(Collectors.toMap(
+                e -> ingredientMapper.toDto(e.getKey()),
+                e -> e.getValue()
+            ));
+    }
+
+    @Transactional(readOnly = true)
+    public List<IngredientDTO> findUserPurchasedIngredients(Long userId) {
+        return userRepository.findPurchasedIngredients(userId)
+            .stream()
+            .map(ingredientMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecipeDTO> findRecipes(Long userId) {
+        return userRepository.findRecipes(userId)
+            .stream()
+            .map(recipeMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
 //
-//    private final UserRepository userRepository;
 //
 //    private final PasswordEncoder passwordEncoder;
 //

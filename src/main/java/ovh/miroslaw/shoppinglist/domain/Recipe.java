@@ -39,20 +39,14 @@ public class Recipe implements Serializable {
     @Column(name = "difficulty")
     private Difficulty difficulty;
 
-    @ManyToMany
-    @JoinTable(name = "recipe_ingredients",
-        joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredients_id", referencedColumnName = "id"))
-//    @ManyToMany(mappedBy = "recipes")
-//    @JsonIgnore
-    @MapKeyColumn(name = "amount")
-    private Map<Float, Ingredient> ingredients = new HashMap<>();
-    //    private Map<Ingredient, Float> ingredients = new HashMap<>();
-    //    private Set<Ingredient> ingredients = new HashSet<>();
-//    @Column(name = "amount")
-//    private Float amount;
-    @ManyToMany(mappedBy = "recipes")
+    @ElementCollection
+    @CollectionTable(name = "recipe_ingredients", joinColumns = {@JoinColumn(name = "recipe_id")})
+    @Column(name = "amount")
+    @MapKeyJoinColumn(name = "ingredient_id")
+    private Map<Ingredient, Float> ingredients = new HashMap<>();
+
     @JsonIgnore
+    @ManyToMany(mappedBy = "recipes")
     private Set<User> users = new HashSet<>();
 
     public Long getId() {
@@ -84,14 +78,6 @@ public class Recipe implements Serializable {
         this.description = description;
         return this;
     }
-
-//    public Float getAmount() {
-//        return amount;
-//    }
-//
-//    public void setAmount(Float amount) {
-//        this.amount = amount;
-//    }
 
     public void setDescription(String description) {
         this.description = description;
@@ -136,65 +122,29 @@ public class Recipe implements Serializable {
         this.difficulty = difficulty;
     }
 
-    public Map<Float, Ingredient> getIngredients() {
+    public Map<Ingredient, Float> getIngredients() {
         return ingredients;
     }
-//
-//    public Recipe ingredients(Map<Ingredient, Float> ingredients) {
-//        this.ingredients = ingredients;
-//        return this;
-//    }
-//
-//    public void setIngredients(Map<Ingredient, Float> ingredients) {
-//        this.ingredients = ingredients;
-//    }
-//
-    public void setIngredients(Map<Float, Ingredient> ingredients) {
+    public void setIngredients(Map<Ingredient, Float> ingredients) {
         this.ingredients = ingredients;
     }
+    public Recipe ingredients(Map<Ingredient, Float> ingredients) {
+        this.ingredients = ingredients;
+        return this;
+    }
+    public Recipe addIngredient(Ingredient ingredient, Float amount) {
+        this.ingredients.put(ingredient, amount);
+        return this;
+    }
 
-
-//    public Recipe addIngredients(Ingredient ingredient, Float amount) {
-//        this.ingredients.put(ingredient, amount);
-//        ingredient.getRecipes().add(this);
-//        return this;
-//    }
-//
-//    public Recipe removeIngredients(Ingredient ingredient) {
-//        this.ingredients.remove(ingredient);
-//        ingredient.getRecipes().remove(this);
-//        return this;
-//    }
-//
-//    public Set<Ingredient> getIngredients() {
-//        return ingredients;
-//    }
-//
-//    public Recipe ingredients(Set<Ingredient> ingredients) {
-//        this.ingredients = ingredients;
-//        return this;
-//    }
-//
-//    public Recipe addIngredients(Ingredient ingredient) {
-//        this.ingredients.add(ingredient);
-//        ingredient.getRecipes().add(this);
-//        return this;
-//    }
-//
-//    public Recipe removeIngredients(Ingredient ingredient) {
-//        this.ingredients.remove(ingredient);
-//        ingredient.getRecipes().remove(this);
-//        return this;
-//    }
-
-//    public void setIngredients(Set<Ingredient> ingredients) {
-//        this.ingredients = ingredients;
-//    }
+    public Recipe removeIngredient(Ingredient ingredient) {
+        this.ingredients.remove(ingredient);
+        return this;
+    }
 
     public Set<User> getUsers() {
         return users;
     }
-
     public Recipe users(Set<User> users) {
         this.users = users;
         return this;
@@ -206,11 +156,11 @@ public class Recipe implements Serializable {
         return this;
     }
 
-//    public Recipe removeUsers(User uUser) {
-//        this.users.remove(uUser);
-//        uUser.getRecipes().remove(this);
-//        return this;
-//    }
+    public Recipe removeUsers(User user) {
+        this.users.remove(user);
+        user.getRecipes().remove(this);
+        return this;
+    }
 
     public void setUsers(Set<User> users) {
         this.users = users;

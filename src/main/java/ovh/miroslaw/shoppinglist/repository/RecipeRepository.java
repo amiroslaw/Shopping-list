@@ -16,12 +16,11 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     @Query(value = "select distinct recipe from Recipe recipe left join fetch recipe.ingredients",
         countQuery = "select count(distinct recipe) from Recipe recipe")
-    Page<Recipe> findAllWithEagerRelationships(Pageable pageable);
+    Page<Recipe> findAllWithEagerIngredients(Pageable pageable);
 
     @Query(value = "select distinct recipe from Recipe recipe left join fetch recipe.ingredients")
-    List<Recipe> findAllWithEagerRelationships();
+    List<Recipe> findAllWithEagerIngredients();
 
     @Query("select recipe from Recipe recipe left join fetch recipe.ingredients where recipe.id =:id")
-    Optional<Recipe> findOneWithEagerRelationships(@Param("id") Long id);
-
+    Optional<Recipe> findOneWithEagerIngredients(@Param("id") Long id);
 }
