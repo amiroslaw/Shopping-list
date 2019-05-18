@@ -1,5 +1,7 @@
 package ovh.miroslaw.shoppinglist.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -11,12 +13,15 @@ import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.domain.User;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 import ovh.miroslaw.shoppinglist.repository.*;
+import ovh.miroslaw.shoppinglist.service.RecipeService;
+import ovh.miroslaw.shoppinglist.service.UserService;
 
 import java.util.*;
 
 
 @Component
 public class DataLoader implements ApplicationRunner {
+    private final Logger log = LoggerFactory.getLogger(DataLoader.class);
     private IngredientRepository ingredientRepository;
     private RecipeRepository recipeRepository;
     private UnitOfMeasureRepository unitOfMeasureRepository;
@@ -24,6 +29,11 @@ public class DataLoader implements ApplicationRunner {
 
     private final PasswordEncoder passwordEncoder;
     private final AuthorityRepository authorityRepository;
+
+    @Autowired
+    private RecipeService recipeService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     DataLoader(IngredientRepository ingredientRepository, RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
@@ -38,42 +48,79 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         User normalUser = createUser("Hulio", "pass", "hulio", "hulio@gmail.com", true, "ROLE_USER");
-        Ingredient pasta = createIngredient("makaron" );
-        Ingredient sos = createIngredient("sos" );
+
+        Ingredient pasta = createIngredient("makaron");
+        Ingredient sos = createIngredient("sos");
         Ingredient tomato = createIngredient("pomidor");
 
+        addPurchasedIngredientsToUser(normalUser, pasta, sos, tomato, pasta);
 
-        addIngredientsToUser(normalUser, pasta, sos, tomato, pasta);
-
-        Map<Float, Ingredient> spaghettiIngredients = new HashMap<>();
-        spaghettiIngredients.put(-1F, pasta);
-        spaghettiIngredients.put(-2F, tomato);
-        spaghettiIngredients.put(-3F, sos);
+        Map<Ingredient, Float> spaghettiIngredients = Map.of(pasta, 0.5F, tomato, 1F, sos, 0.3F);
+        addUserIngredientsToUser(normalUser, spaghettiIngredients);
+        addShoppingListToUser(normalUser, spaghettiIngredients);
 
         Recipe spaghetti = createRecipe("spaghetti", "spaghetti italiano", "https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwiluqeAtZbiAhVK_SoKHf1KDecQjRx6BAgBEAU&url=https%3A%2F%2Fwww.bbc.com%2Ffood%2Frecipes%2Fmicrowave_spaghetti_44920&psig=AOvVaw2L2f4GD-Gpfkc4fVea-8hP&ust=1557764994301009",
-            true, Difficulty.EASY, normalUser, spaghettiIngredients );
+            true, Difficulty.EASY, normalUser, spaghettiIngredients);
+
+        userRepository.save(normalUser);
+
+        repoTest();
     }
 
-    private void addIngredientsToUser(User user, Ingredient ... ingredients) {
-        user.setUserIngredients(new HashSet<Ingredient>(Arrays.asList(ingredients)));
+    private void repoTest() {
+        log.debug("all recipe");
+        System.out.println(recipeService.findAll());
+
+        log.debug("all recipe eager");
+        System.out.println(recipeRepository.findAllWithEagerIngredients().get(0).getIngredients());
+
+        log.debug("users");
+        List<User> users = userRepository.findAll();
+        System.out.println(users);
+
+        log.debug("shoppinglist");
+        System.out.println(userService.findUserShoppingList(users.get(0).getId()));
+
+        log.debug("purchased ing");
+        System.out.println(userRepository.findPurchasedIngredients(users.get(0).getId()));
+    }
+
+    private void addUserIngredientsToUser(User user, Map<Ingredient, Float> ingredients){
+        log.debug("addUserIngredientsToUser");
+        user.setUserIngredients(ingredients);
+        userRepository.save(user);
+    }
+
+    private void addShoppingListToUser(User user, Map<Ingredient, Float> ingredients){
+        log.debug("addShoppingListToUser");
+        user.setShoppingList(ingredients);
+        userRepository.save(user);
+    }
+
+    private void addPurchasedIngredientsToUser(User user, Ingredient... ingredients) {
+        log.debug("addPurchasedIngredientsToUser");
+        user.setPurchasedIngredients(new HashSet<Ingredient>(Arrays.asList(ingredients)));
         userRepository.save(user);
     }
 
     private Ingredient createIngredient(String name) {
         Ingredient ingredient = new Ingredient();
         ingredient.setName(name);
+        ingredient.setPopularity(1);
         return ingredientRepository.save(ingredient);
     }
 
-    private Recipe createRecipe(String title, String description, String imgUrl, boolean visible, Difficulty difficulty, User user, Map<Float, Ingredient> ingredients ) {
+    private Recipe createRecipe(String title, String description, String imgUrl, boolean visible, Difficulty difficulty, User user, Map<Ingredient, Float> ingredients) {
+        log.debug("createRecipe");
         Recipe recipe = new Recipe();
         recipe.setTitle(title);
         recipe.setDescription(description);
         recipe.setImgUrl(imgUrl);
         recipe.setVisible(visible);
         recipe.setDifficulty(difficulty);
-        recipe.addUser(user);
         recipe.setIngredients(ingredients);
+        recipe.addUser(user);
+        user.getRecipes().add(recipe);
         return recipeRepository.save(recipe);
     }
 

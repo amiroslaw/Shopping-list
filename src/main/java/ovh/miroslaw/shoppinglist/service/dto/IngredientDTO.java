@@ -17,12 +17,6 @@ public class IngredientDTO implements Serializable {
 
     private Long unitOfMeasureId;
 
-    private Long shoppingListId;
-
-    private Long ingredientsId;
-
-    private Long purchasedIngredientsId;
-
     public Long getId() {
         return id;
     }
@@ -47,28 +41,12 @@ public class IngredientDTO implements Serializable {
         this.unitOfMeasureId = unitOfMeasureId;
     }
 
-    public Long getShoppingListId() {
-        return shoppingListId;
+    public Integer getPopularity() {
+        return popularity;
     }
 
-    public void setShoppingListId(Long shoppingListId) {
-        this.shoppingListId = shoppingListId;
-    }
-
-    public Long getIngredientsId() {
-        return ingredientsId;
-    }
-
-    public void setIngredientsId(Long ingredientsId) {
-        this.ingredientsId = ingredientsId;
-    }
-
-    public Long getPurchasedIngredientsId() {
-        return purchasedIngredientsId;
-    }
-
-    public void setPurchasedIngredientsId(Long purchasedIngredientsId) {
-        this.purchasedIngredientsId = purchasedIngredientsId;
+    public void setPopularity(Integer popularity) {
+        this.popularity = popularity;
     }
 
     @Override
@@ -87,14 +65,6 @@ public class IngredientDTO implements Serializable {
         return Objects.equals(getId(), ingredientDTO.getId());
     }
 
-    public Integer getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(Integer popularity) {
-        this.popularity = popularity;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hashCode(getId());
@@ -103,12 +73,10 @@ public class IngredientDTO implements Serializable {
     @Override
     public String toString() {
         return "IngredientDTO{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", unitOfMeasure=" + getUnitOfMeasureId() +
-            ", shoppingList=" + getShoppingListId() +
-            ", ingredients=" + getIngredientsId() +
-            ", purchasedIngredients=" + getPurchasedIngredientsId() +
-            "}";
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", popularity=" + popularity +
+            ", unitOfMeasureId=" + unitOfMeasureId +
+            '}';
     }
 }

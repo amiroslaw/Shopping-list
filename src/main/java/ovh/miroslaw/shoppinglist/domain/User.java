@@ -71,17 +71,17 @@ public class User implements Serializable {
     @Column(name = "reset_date")
     private Instant resetDate = null;
 
-    @ManyToMany
-    @JoinTable(name = "user_ingredient",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
-    private Set<Ingredient> userIngredients = new HashSet<>();
+    @ElementCollection
+    @CollectionTable(name = "user_ingredients", joinColumns = {@JoinColumn(name = "user_id")})
+    @Column(name = "amount")
+    @MapKeyJoinColumn(name = "ingredient_id")
+    private Map<Ingredient, Float> userIngredients = new HashMap<>();
 
-    @ManyToMany
-    @JoinTable(name = "shopping_list",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ingredient_id", referencedColumnName = "id"))
-    private Set<Ingredient> shoppingList = new HashSet<>();
+    @ElementCollection
+    @CollectionTable(name = "shopping_list", joinColumns = {@JoinColumn(name = "user_id")})
+    @Column(name = "amount")
+    @MapKeyJoinColumn(name = "ingredient_id")
+    private Map<Ingredient, Float> shoppingList = new HashMap<>();
 
     @ManyToMany
     @JoinTable(name = "purchased_ingredients",
@@ -208,70 +208,82 @@ public class User implements Serializable {
         this.authorities = authorities;
     }
 
-    public Set<Ingredient> getShoppingList() {
+    public Map<Ingredient, Float> getShoppingList() {
         return shoppingList;
     }
-
-    public void addIngredientToShoppingList(Ingredient ingredient) {
-        shoppingList.add(ingredient);
-    }
-
-    public void removeIngredientFromShoppingList(Ingredient ingredient) {
-        shoppingList.remove(ingredient);
-    }
-
-    public void setShoppingList(Set<Ingredient> ingredients) {
+    public void setShoppingList(Map<Ingredient, Float> ingredients) {
         this.shoppingList = ingredients;
     }
+    public User shoppingList(Map<Ingredient, Float> ingredients) {
+        this.shoppingList = ingredients;
+        return this;
+    }
+    public User addIngredientToShoppingList(Ingredient ingredient, Float amount) {
+        shoppingList.put(ingredient, amount);
+        return this;
+    }
+    public User removeIngredientFromShoppingList(Ingredient ingredient) {
+        shoppingList.remove(ingredient);
+        return this;
+    }
 
-
-    public Set<Ingredient> getUserIngredients() {
+    public Map<Ingredient, Float> getUserIngredients() {
         return userIngredients;
     }
-
-    public void addUserIngredient(Ingredient ingredient) {
-        userIngredients.add(ingredient);
-    }
-
-    public void removeUserIngredient(Ingredient ingredient) {
-        userIngredients.remove(ingredient);
-    }
-
-    public void setUserIngredients(Set<Ingredient> userIngredients) {
+    public void setUserIngredients(Map<Ingredient, Float> userIngredients) {
         this.userIngredients = userIngredients;
     }
+    public User userIngredients(Map<Ingredient, Float> userIngredients) {
+        this.userIngredients = userIngredients;
+        return this;
+    }
+    public User addUserIngredient(Ingredient ingredient, Float amount) {
+        userIngredients.put(ingredient, amount);
+        return this;
+    }
+    public User removeUserIngredient(Ingredient ingredient) {
+        userIngredients.remove(ingredient);
+        return this;
+    }
+
 
     public Set<Ingredient> getPurchasedIngredients() {
         return purchasedIngredients;
     }
-
-    public void addPurchasedIngredient(Ingredient ingredient) {
-        purchasedIngredients.add(ingredient);
-    }
-
     public void setPurchasedIngredients(Set<Ingredient> purchasedIngredients) {
         this.purchasedIngredients = purchasedIngredients;
     }
-
-    public void removeIngredientFromPurchasedList(Ingredient ingredient) {
+    public User purchasedIngredients(Set<Ingredient> purchasedIngredients) {
+        this.purchasedIngredients = purchasedIngredients;
+        return this;
+    }
+    public User addPurchasedIngredient(Ingredient ingredient) {
+        purchasedIngredients.add(ingredient);
+        return this;
+    }
+    public User removePurchasedIngredient(Ingredient ingredient) {
         purchasedIngredients.remove(ingredient);
+        return this;
     }
 
     public Set<Recipe> getRecipes() {
         return recipes;
     }
-
-    public void addRecipes(Recipe recipe) {
-        this.recipes.add(recipe);
-    }
-
-    public void removeRecipes(Recipe recipe) {
-        this.recipes.remove(recipe);
-        recipe.getUsers().remove(this);
-    }
-
     public void setRecipes(Set<Recipe> recipes) {
         this.recipes = recipes;
+    }
+    public User recipes(Set<Recipe> recipes) {
+        this.recipes = recipes;
+        return this;
+    }
+    public User addRecipe(Recipe recipe) {
+        this.recipes.add(recipe);
+        return this;
+    }
+    public User removeRecipe(Recipe recipe) {
+        this.recipes.remove(recipe);
+        recipe.getUsers().remove(this);
+        return this;
     }
 
     @Override
