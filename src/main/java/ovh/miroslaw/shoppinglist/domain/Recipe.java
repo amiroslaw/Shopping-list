@@ -9,7 +9,6 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.*;
 
-import org.springframework.data.repository.cdi.Eager;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 
 import static javax.persistence.FetchType.EAGER;
