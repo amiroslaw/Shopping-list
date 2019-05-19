@@ -2,6 +2,7 @@ package ovh.miroslaw.shoppinglist.service;
 
 import org.springframework.transaction.annotation.Transactional;
 import ovh.miroslaw.shoppinglist.domain.Ingredient;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 import ovh.miroslaw.shoppinglist.service.dto.RecipeDTO;
 
 import org.springframework.data.domain.Page;
@@ -16,13 +17,13 @@ public interface RecipeService {
     RecipeDTO save(RecipeDTO recipeDTO);
 
     @Transactional(readOnly = true)
-    Map<Ingredient, Float> findRecipeIngredients(Long recipeId);
+    Map<IngredientDTO, Float> findRecipeIngredients(Long recipeId);
 
     List<RecipeDTO> findAll();
 
     Page<RecipeDTO> findAllWithEagerRelationships(Pageable pageable);
     
-    Optional<RecipeDTO> findOne(Long id);
+    Optional<RecipeDTO> findOneWithEagerIngredients(Long id);
 
     void delete(Long id);
 }

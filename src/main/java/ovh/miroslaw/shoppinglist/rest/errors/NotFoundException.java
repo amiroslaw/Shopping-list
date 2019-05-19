@@ -1,4 +1,4 @@
-package xyz.miroslaw.languide.exception;
+package ovh.miroslaw.shoppinglist.rest.errors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

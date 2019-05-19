@@ -9,7 +9,10 @@ import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.*;
 
+import org.springframework.data.repository.cdi.Eager;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
+
+import static javax.persistence.FetchType.EAGER;
 
 @Entity
 @Table(name = "recipe")
@@ -38,8 +41,8 @@ public class Recipe implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty")
     private Difficulty difficulty;
-
-    @ElementCollection
+//TODO eager or lazy?
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "recipe_ingredients", joinColumns = {@JoinColumn(name = "recipe_id")})
     @Column(name = "amount")
     @MapKeyJoinColumn(name = "ingredient_id")

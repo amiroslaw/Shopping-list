@@ -72,7 +72,13 @@ public class DataLoader implements ApplicationRunner {
         System.out.println(recipeService.findAll());
 
         log.debug("all recipe eager");
-        System.out.println(recipeRepository.findAllWithEagerIngredients().get(0).getIngredients());
+        System.out.println(recipeRepository.findAllWithEagerIngredients().get(0));
+
+        log.debug("one recipe eager - repo");
+        System.out.println(recipeRepository.findOneWithEagerIngredients(1L).get().getIngredients());
+        log.debug("one recipe eager");
+        System.out.println(recipeService.findOneWithEagerIngredients(1L).get().getIngredients());
+        System.out.println(recipeService.findOneWithEagerIngredients(1L).get());
 
         log.debug("users");
         List<User> users = userRepository.findAll();

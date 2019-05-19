@@ -42,7 +42,7 @@ public class RecipeResource {
             throw new NotFoundException("Invalid id");
         }
         RecipeDTO result = recipeService.save(recipeDTO);
-        return ResponseEntity.created(new URI("/api/recipes/" + result.getId()))
+        return ResponseEntity.created(new URI("/recipes/" + result.getId()))
             .body(result);
     }
 
@@ -68,11 +68,11 @@ public class RecipeResource {
     /**
      * GET  /recipes : get all the recipes.
      *
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many)
+//     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many)
      * @return the ResponseEntity with status 200 (OK) and the list of recipes in body
      */
     @GetMapping("/recipes")
-    public List<RecipeDTO> getAllRecipes(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
+    public List<RecipeDTO> getAllRecipes() {
         log.debug("REST request to get all Recipes");
         return recipeService.findAll();
     }
@@ -86,8 +86,8 @@ public class RecipeResource {
     @GetMapping("/recipes/{id}")
     public ResponseEntity<RecipeDTO> getRecipe(@PathVariable Long id) {
         log.debug("REST request to get Recipe : {}", id);
-        return ResponseUtil.wrapOrNotFound(recipeService.findOne(id));
-//            return recipeService.findOne(id)
+        return ResponseUtil.wrapOrNotFound(recipeService.findOneWithEagerIngredients(id));
+//            return recipeService.findOneWithEagerIngredients(id)
 //            .map( user -> ResponseEntity.ok().body(user) )          //200 OK
 //            .orElseGet( () -> ResponseEntity.notFound().build() );  //404 Not found
 

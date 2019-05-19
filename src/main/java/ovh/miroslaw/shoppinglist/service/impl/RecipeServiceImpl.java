@@ -4,7 +4,9 @@ import ovh.miroslaw.shoppinglist.domain.Ingredient;
 import ovh.miroslaw.shoppinglist.service.RecipeService;
 import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.repository.RecipeRepository;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 import ovh.miroslaw.shoppinglist.service.dto.RecipeDTO;
+import ovh.miroslaw.shoppinglist.service.mapper.IngredientMapper;
 import ovh.miroslaw.shoppinglist.service.mapper.RecipeMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +27,12 @@ public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
 
+    private final IngredientMapper ingredientMapper;
     private final RecipeMapper recipeMapper;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, RecipeMapper recipeMapper) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, IngredientMapper ingredientMapper, RecipeMapper recipeMapper) {
         this.recipeRepository = recipeRepository;
+        this.ingredientMapper = ingredientMapper;
         this.recipeMapper = recipeMapper;
     }
 
@@ -42,10 +46,15 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<Ingredient, Float> findRecipeIngredients(Long recipeId) {
+    public Map<IngredientDTO, Float> findRecipeIngredients(Long recipeId) {
         return recipeRepository.findOneWithEagerIngredients(recipeId)
             .map(Recipe::getIngredients)
-            .orElse(Collections.emptyMap());
+            .or(() -> Optional.of(Collections.emptyMap()))
+            .get().entrySet().stream()
+            .collect(Collectors.toMap(
+                e -> ingredientMapper.toDto(e.getKey()),
+                e -> e.getValue()
+            ));
     }
 
     @Override
@@ -63,7 +72,7 @@ public class RecipeServiceImpl implements RecipeService {
     
     @Override
     @Transactional(readOnly = true)
-    public Optional<RecipeDTO> findOne(Long id) {
+    public Optional<RecipeDTO> findOneWithEagerIngredients(Long id) {
         log.debug("Request to get Recipe : {}", id);
         return recipeRepository.findOneWithEagerIngredients(id)
             .map(recipeMapper::toDto);
