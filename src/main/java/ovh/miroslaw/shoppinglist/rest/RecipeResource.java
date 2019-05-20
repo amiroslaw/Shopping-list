@@ -1,6 +1,6 @@
 package ovh.miroslaw.shoppinglist.rest;
 
-import ovh.miroslaw.shoppinglist.rest.errors.NotFoundException;
+import ovh.miroslaw.shoppinglist.rest.errors.BadRequestException;
 import ovh.miroslaw.shoppinglist.rest.util.ResponseUtil;
 import ovh.miroslaw.shoppinglist.service.RecipeService;
 import ovh.miroslaw.shoppinglist.service.dto.RecipeDTO;
@@ -16,11 +16,10 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class RecipeResource {
 
     private final Logger log = LoggerFactory.getLogger(RecipeResource.class);
-
-    private static final String ENTITY_NAME = "recipe";
 
     private final RecipeService recipeService;
 
@@ -39,10 +38,10 @@ public class RecipeResource {
     public ResponseEntity<RecipeDTO> createRecipe(@Valid @RequestBody RecipeDTO recipeDTO) throws URISyntaxException {
         log.debug("REST request to save Recipe : {}", recipeDTO);
         if (recipeDTO.getId() != null) {
-            throw new NotFoundException("Invalid id");
+            throw new BadRequestException("Bad request- id exist");
         }
         RecipeDTO result = recipeService.save(recipeDTO);
-        return ResponseEntity.created(new URI("/recipes/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/recipes/" + result.getId()))
             .body(result);
     }
 
@@ -52,14 +51,12 @@ public class RecipeResource {
      * @param recipeDTO the recipeDTO to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated recipeDTO,
      * or with status 400 (Bad Request) if the recipeDTO is not valid,
-     * or with status 500 (Internal Server Error) if the recipeDTO couldn't be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/recipes")
-    public ResponseEntity<RecipeDTO> updateRecipe(@Valid @RequestBody RecipeDTO recipeDTO) throws URISyntaxException {
+    public ResponseEntity<RecipeDTO> updateRecipe(@Valid @RequestBody RecipeDTO recipeDTO) {
         log.debug("REST request to update Recipe : {}", recipeDTO);
         if (recipeDTO.getId() == null) {
-            throw new NotFoundException("Invalid id");
+            throw new BadRequestException("Bad request- id does not exist");
         }
         RecipeDTO result = recipeService.save(recipeDTO);
         return ResponseEntity.ok().body(result);
@@ -68,7 +65,6 @@ public class RecipeResource {
     /**
      * GET  /recipes : get all the recipes.
      *
-//     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many)
      * @return the ResponseEntity with status 200 (OK) and the list of recipes in body
      */
     @GetMapping("/recipes")
@@ -87,10 +83,6 @@ public class RecipeResource {
     public ResponseEntity<RecipeDTO> getRecipe(@PathVariable Long id) {
         log.debug("REST request to get Recipe : {}", id);
         return ResponseUtil.wrapOrNotFound(recipeService.findOneWithEagerIngredients(id));
-//            return recipeService.findOneWithEagerIngredients(id)
-//            .map( user -> ResponseEntity.ok().body(user) )          //200 OK
-//            .orElseGet( () -> ResponseEntity.notFound().build() );  //404 Not found
-
     }
 
     /**
