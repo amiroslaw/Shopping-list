@@ -49,23 +49,36 @@ public class DataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         User normalUser = createUser("Hulio", "pass", "hulio", "hulio@gmail.com", true, "ROLE_USER");
 
-        Ingredient pasta = createIngredient("makaron");
-        Ingredient sos = createIngredient("sos");
-        Ingredient tomato = createIngredient("pomidor");
-
-        addPurchasedIngredientsToUser(normalUser, pasta, sos, tomato, pasta);
-
+        Ingredient pasta = createIngredient("makaron", 2);
+        Ingredient sos = createIngredient("sos", 3);
+        Ingredient tomato = createIngredient("pomidor", 4);
+        var kotlety = createIngredients(Map.of("mięso mielone", 0.5F, "bułka tarta", 0.5F, "cebula", 1F, "woda", 125F));
+        var pulpetyIng = createIngredients(Map.of("mięso mielone", 0.4F, "śmietana", 0.1F, "cebula", 2F, "mąka", 3F, "jajko", 1F));
         Map<Ingredient, Float> spaghettiIngredients = Map.of(pasta, 0.5F, tomato, 1F, sos, 0.3F);
+
+        // it have to be before recipes
+        addPurchasedIngredientsToUser(normalUser, pasta, sos, tomato, pasta);
         addUserIngredientsToUser(normalUser, spaghettiIngredients);
         addShoppingListToUser(normalUser, spaghettiIngredients);
+        addShoppingListToUser(normalUser, kotlety);
 
         Recipe spaghetti = createRecipe("spaghetti", "spaghetti italiano", "https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwiluqeAtZbiAhVK_SoKHf1KDecQjRx6BAgBEAU&url=https%3A%2F%2Fwww.bbc.com%2Ffood%2Frecipes%2Fmicrowave_spaghetti_44920&psig=AOvVaw2L2f4GD-Gpfkc4fVea-8hP&ust=1557764994301009",
             true, Difficulty.EASY, normalUser, spaghettiIngredients);
+
+        Recipe kotletyMielone = createRecipe("Kotlety mielone",
+            "Tradycyjne kotlety mielone",
+            "https://upload.wikimedia.org/wikipedia/commons/b/bd/Kotlet.jpg",
+            true, Difficulty.MODERATE, normalUser, kotlety);
+
+        Recipe pulpety = createRecipe("pulpety", "Pulpety w sosie koperkowym",
+        "https://s3.przepisy.pl/przepisy3ii/img/variants/670x0/pulpeciki-w-sosie-koperkowym804842.jpg",
+        true, Difficulty.HARD, normalUser, pulpetyIng);
 
         userRepository.save(normalUser);
 
         repoTest();
     }
+
 
     private void repoTest() {
         log.debug("all recipe");
@@ -109,13 +122,25 @@ public class DataLoader implements ApplicationRunner {
         userRepository.save(user);
     }
 
-    private Ingredient createIngredient(String name) {
+    private Ingredient createIngredient(String name, int popularity) {
         Ingredient ingredient = new Ingredient();
         ingredient.setName(name);
-        ingredient.setPopularity(1);
+        ingredient.setPopularity(popularity);
         return ingredientRepository.save(ingredient);
     }
 
+    private HashMap<Ingredient, Float> createIngredients(Map<String, Float> stringMap) {
+        var ingredientMap = new HashMap< Ingredient, Float>();
+        Set<String> names = stringMap.keySet();
+        for (String name: names) {
+            Ingredient ingredient = new Ingredient();
+            ingredient.setName(name);
+            ingredient.setPopularity(1);
+            ingredientRepository.save(ingredient);
+            ingredientMap.put(ingredient, stringMap.get(name));
+        }
+        return ingredientMap;
+    }
     private Recipe createRecipe(String title, String description, String imgUrl, boolean visible, Difficulty difficulty, User user, Map<Ingredient, Float> ingredients) {
         log.debug("createRecipe");
         Recipe recipe = new Recipe();
