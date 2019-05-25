@@ -13,6 +13,7 @@ import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.domain.User;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 import ovh.miroslaw.shoppinglist.repository.*;
+import ovh.miroslaw.shoppinglist.rest.paramconverter.IngredientListType;
 import ovh.miroslaw.shoppinglist.service.RecipeService;
 import ovh.miroslaw.shoppinglist.service.UserService;
 
@@ -47,6 +48,7 @@ public class DataLoader implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+
         User normalUser = createUser("Hulio", "pass", "hulio", "hulio@gmail.com", true, "ROLE_USER");
 
         Ingredient pasta = createIngredient("makaron", 2);
