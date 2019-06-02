@@ -20,19 +20,15 @@ public class Ingredient implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     private Integer popularity;
 
-    @OneToOne
-    @JoinColumn(unique = true)
-    private UnitOfMeasure unitOfMeasure;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "purchasedIngredients")
     private Set<User> purchasedIngredients = new HashSet<>();
-
 
     public Long getId() {
         return id;
@@ -47,12 +43,12 @@ public class Ingredient implements Serializable {
     }
 
     public Ingredient name(String name) {
-        this.name = name;
+        this.name = name.toLowerCase();
         return this;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.toLowerCase();
     }
 
     public Integer getPopularity() {
@@ -63,29 +59,33 @@ public class Ingredient implements Serializable {
         this.popularity = popularity;
     }
 
-    public UnitOfMeasure getUnitOfMeasure() {
-        return unitOfMeasure;
-    }
+//    @OneToOne
+//    @JoinColumn(unique = true)
+//    private UnitOfMeasure unitOfMeasure;
 
-    public Ingredient unitOfMeasure(UnitOfMeasure unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
-        return this;
-    }
-
-    public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
-        this.unitOfMeasure = unitOfMeasure;
-    }
-
-    public Ingredient removeUserfromPurchasedIngredients(User user) {
-        purchasedIngredients.remove(user);
-        user.getPurchasedIngredients().remove(this);
-        return this;
-    }
-
-    public Ingredient addUserToPurchasedIngredients(User user) {
-        purchasedIngredients.add(user);
-        return this;
-    }
+//    public UnitOfMeasure getUnitOfMeasure() {
+//        return unitOfMeasure;
+//    }
+//
+//    public Ingredient unitOfMeasure(UnitOfMeasure unitOfMeasure) {
+//        this.unitOfMeasure = unitOfMeasure;
+//        return this;
+//    }
+//
+//    public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
+//        this.unitOfMeasure = unitOfMeasure;
+//    }
+//
+//    public Ingredient removeUserfromPurchasedIngredients(User user) {
+//        purchasedIngredients.remove(user);
+//        user.getPurchasedIngredients().remove(this);
+//        return this;
+//    }
+//
+//    public Ingredient addUserToPurchasedIngredients(User user) {
+//        purchasedIngredients.add(user);
+//        return this;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -95,13 +95,12 @@ public class Ingredient implements Serializable {
         return Objects.equals(id, that.id) &&
             Objects.equals(name, that.name) &&
             Objects.equals(popularity, that.popularity) &&
-            Objects.equals(unitOfMeasure, that.unitOfMeasure) &&
             Objects.equals(purchasedIngredients, that.purchasedIngredients);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, popularity, unitOfMeasure, purchasedIngredients);
+        return Objects.hash(id, name, popularity, purchasedIngredients);
     }
 
     @Override

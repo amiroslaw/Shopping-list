@@ -23,9 +23,9 @@ public class UnitOfMeasure implements Serializable {
     @Column(name = "uom", nullable = false)
     private String uom;
 
-    @OneToOne(mappedBy = "unitOfMeasure")
-    @JsonIgnore
-    private Ingredient ingredient;
+//    @OneToOne(mappedBy = "unitOfMeasure")
+//    @JsonIgnore
+//    private Ingredient ingredient;
 
     public Long getId() {
         return id;
@@ -48,18 +48,18 @@ public class UnitOfMeasure implements Serializable {
         this.uom = uom;
     }
 
-    public Ingredient getIngredient() {
-        return ingredient;
-    }
-
-    public UnitOfMeasure ingredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
-        return this;
-    }
-
-    public void setIngredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
-    }
+//    public Ingredient getIngredient() {
+//        return ingredient;
+//    }
+//
+//    public UnitOfMeasure ingredient(Ingredient ingredient) {
+//        this.ingredient = ingredient;
+//        return this;
+//    }
+//
+//    public void setIngredient(Ingredient ingredient) {
+//        this.ingredient = ingredient;
+//    }
 
     @Override
     public boolean equals(Object o) {

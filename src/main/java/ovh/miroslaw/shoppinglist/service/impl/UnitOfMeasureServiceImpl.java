@@ -49,16 +49,6 @@ public class UnitOfMeasureServiceImpl implements UnitOfMeasureService {
             .collect(Collectors.toCollection(LinkedList::new));
     }
 
-    @Transactional(readOnly = true)
-    public List<UnitOfMeasureDTO> findAllWhereIngredientIsNull() {
-        log.debug("Request to get all unitOfMeasures where Ingredient is null");
-        return StreamSupport
-            .stream(unitOfMeasureRepository.findAll().spliterator(), false)
-            .filter(unitOfMeasure -> unitOfMeasure.getIngredient() == null)
-            .map(unitOfMeasureMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Optional<UnitOfMeasureDTO> findOne(Long id) {
@@ -72,4 +62,15 @@ public class UnitOfMeasureServiceImpl implements UnitOfMeasureService {
         log.debug("Request to delete UnitOfMeasure : {}", id);
         unitOfMeasureRepository.deleteById(id);
     }
+
+//    @Transactional(readOnly = true)
+//    public List<UnitOfMeasureDTO> findAllWhereIngredientIsNull() {
+//        log.debug("Request to get all unitOfMeasures where Ingredient is null");
+//        return StreamSupport
+//            .stream(unitOfMeasureRepository.findAll().spliterator(), false)
+//            .filter(unitOfMeasure -> unitOfMeasure.getIngredient() == null)
+//            .map(unitOfMeasureMapper::toDto)
+//            .collect(Collectors.toCollection(LinkedList::new));
+//    }
+
 }

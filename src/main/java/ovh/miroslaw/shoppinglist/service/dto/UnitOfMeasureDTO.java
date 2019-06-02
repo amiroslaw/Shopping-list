@@ -13,7 +13,6 @@ public class UnitOfMeasureDTO implements Serializable {
     @NotNull
     private String uom;
 
-
     public Long getId() {
         return id;
     }

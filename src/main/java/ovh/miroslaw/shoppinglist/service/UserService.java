@@ -48,44 +48,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Map<IngredientDTO, Float> findUserShoppingList(Long userId) {
-        return userRepository.findUserWithEagerShoppingList(userId)
-            .map(User::getShoppingList)
-            .or(() -> Optional.of(Collections.emptyMap()))
-            .get().entrySet().stream()
-            .collect(Collectors.toMap(
-                e -> ingredientMapper.toDto(e.getKey()),
-                e -> e.getValue()
-            ));
-    }
-
-    @Transactional(readOnly = true)
-    public Map<IngredientDTO, Float> findUserIngredients(Long userId) {
-        return userRepository.findUserWithEagerIngredients(userId)
-            .map(User::getUserIngredients)
-            .or(() -> Optional.of(Collections.emptyMap()))
-            .get().entrySet().stream()
-            .collect(Collectors.toMap(
-                e -> ingredientMapper.toDto(e.getKey()),
-                e -> e.getValue()
-            ));
-    }
-
-    @Transactional(readOnly = true)
-    public List<IngredientDTO> findUserPurchasedIngredients(Long userId) {
-        return userRepository.findPurchasedIngredients(userId)
-            .stream()
-            .map(ingredientMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
-    }
-
-    @Transactional(readOnly = true)
     public List<RecipeDTO> findRecipes(Long userId) {
         return userRepository.findRecipes(userId)
             .stream()
             .map(recipeMapper::toDto)
             .collect(Collectors.toCollection(LinkedList::new));
     }
+
 
     //
 //

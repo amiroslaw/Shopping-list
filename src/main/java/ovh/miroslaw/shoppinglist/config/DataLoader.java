@@ -13,7 +13,7 @@ import ovh.miroslaw.shoppinglist.domain.Recipe;
 import ovh.miroslaw.shoppinglist.domain.User;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 import ovh.miroslaw.shoppinglist.repository.*;
-import ovh.miroslaw.shoppinglist.rest.paramconverter.IngredientListType;
+import ovh.miroslaw.shoppinglist.service.IngredientService;
 import ovh.miroslaw.shoppinglist.service.RecipeService;
 import ovh.miroslaw.shoppinglist.service.UserService;
 
@@ -35,27 +35,31 @@ public class DataLoader implements ApplicationRunner {
     private RecipeService recipeService;
     @Autowired
     private UserService userService;
+    private IngredientService ingredientService;
 
     @Autowired
-    DataLoader(IngredientRepository ingredientRepository, RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository) {
+    DataLoader(IngredientRepository ingredientRepository, RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, IngredientService ingredientService) {
         this.ingredientRepository = ingredientRepository;
         this.recipeRepository = recipeRepository;
         this.unitOfMeasureRepository = unitOfMeasureRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.ingredientService = ingredientService;
     }
 
     @Override
     public void run(ApplicationArguments args) {
 
         User normalUser = createUser("Hulio", "pass", "hulio", "hulio@gmail.com", true, "ROLE_USER");
+        User user = createUser("Miro", "pass", "miro", "miro@gmail.com", true, "ROLE_USER");
+        userRepository.save(user);
 
-        Ingredient pasta = createIngredient("makaron", 2);
+        Ingredient pasta = createIngredient("MAKARON", 2);
         Ingredient sos = createIngredient("sos", 3);
         Ingredient tomato = createIngredient("pomidor", 4);
         var kotlety = createIngredients(Map.of("mięso mielone", 0.5F, "bułka tarta", 0.5F, "cebula", 1F, "woda", 125F));
-        var pulpetyIng = createIngredients(Map.of("mięso mielone", 0.4F, "śmietana", 0.1F, "cebula", 2F, "mąka", 3F, "jajko", 1F));
+        var pulpetyIng = createIngredients(Map.of("mięso wołowe", 0.4F, "śmietana", 0.1F, "czosnek", 2F, "mąka", 3F, "jajko", 1F));
         Map<Ingredient, Float> spaghettiIngredients = Map.of(pasta, 0.5F, tomato, 1F, sos, 0.3F);
 
         // it have to be before recipes
@@ -77,6 +81,7 @@ public class DataLoader implements ApplicationRunner {
         true, Difficulty.HARD, normalUser, pulpetyIng);
 
         userRepository.save(normalUser);
+//        recipeRepository.delete(spaghetti);
 
         repoTest();
     }
@@ -100,7 +105,7 @@ public class DataLoader implements ApplicationRunner {
         System.out.println(users);
 
         log.debug("shoppinglist");
-        System.out.println(userService.findUserShoppingList(users.get(0).getId()));
+        System.out.println(ingredientService.findUserShoppingList(users.get(0).getId()));
 
         log.debug("purchased ing");
         System.out.println(userRepository.findPurchasedIngredients(users.get(0).getId()));
@@ -125,6 +130,7 @@ public class DataLoader implements ApplicationRunner {
     }
 
     private Ingredient createIngredient(String name, int popularity) {
+        log.debug("ing save: " + name);
         Ingredient ingredient = new Ingredient();
         ingredient.setName(name);
         ingredient.setPopularity(popularity);

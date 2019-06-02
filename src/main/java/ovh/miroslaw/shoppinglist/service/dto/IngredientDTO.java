@@ -15,7 +15,7 @@ public class IngredientDTO implements Serializable {
 
     private Integer popularity;
 
-    private Long unitOfMeasureId;
+    private Float amount;
 
     public Long getId() {
         return id;
@@ -33,20 +33,20 @@ public class IngredientDTO implements Serializable {
         this.name = name;
     }
 
-    public Long getUnitOfMeasureId() {
-        return unitOfMeasureId;
-    }
-
-    public void setUnitOfMeasureId(Long unitOfMeasureId) {
-        this.unitOfMeasureId = unitOfMeasureId;
-    }
-
     public Integer getPopularity() {
         return popularity;
     }
 
     public void setPopularity(Integer popularity) {
         this.popularity = popularity;
+    }
+
+    public Float getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Float amount) {
+        this.amount = amount;
     }
 
     @Override
@@ -76,7 +76,6 @@ public class IngredientDTO implements Serializable {
             "id=" + id +
             ", name='" + name + '\'' +
             ", popularity=" + popularity +
-            ", unitOfMeasureId=" + unitOfMeasureId +
             '}';
     }
 }

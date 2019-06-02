@@ -8,13 +8,17 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity Ingredient and its DTO IngredientDTO.
  */
-@Mapper(componentModel = "spring", uses = {UnitOfMeasureMapper.class})
+@Mapper(componentModel = "spring")
 public interface IngredientMapper extends EntityMapper<IngredientDTO, Ingredient> {
 
-    @Mapping(source = "unitOfMeasure.id", target = "unitOfMeasureId")
-    IngredientDTO toDto(Ingredient ingredient);
+//    @Mapping(source = "unitOfMeasure.id", target = "unitOfMeasureId")
+    @Mapping(source = "ingredient.id", target = "id")
+    @Mapping(source = "ingredient.name", target = "name")
+    @Mapping(source = "ingredient.popularity", target = "popularity")
+    @Mapping(source = "amount", target = "amount")
+    IngredientDTO toDto(Ingredient ingredient, Float amount);
+//    IngredientDTO toDto(Ingredient ingredient);
 
-//    @Mapping(target = "recipes", ignore = true)
     Ingredient toEntity(IngredientDTO ingredientDTO);
 
     default Ingredient fromId(Long id) {

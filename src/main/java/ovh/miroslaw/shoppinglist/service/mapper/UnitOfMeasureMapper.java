@@ -12,7 +12,7 @@ import org.mapstruct.*;
 public interface UnitOfMeasureMapper extends EntityMapper<UnitOfMeasureDTO, UnitOfMeasure> {
 
 
-    @Mapping(target = "ingredient", ignore = true)
+//    @Mapping(target = "ingredient", ignore = true)
     UnitOfMeasure toEntity(UnitOfMeasureDTO unitOfMeasureDTO);
 
     default UnitOfMeasure fromId(Long id) {
