@@ -9,13 +9,13 @@ import java.util.Optional;
 
 public interface IngredientService {
 
-    Map<IngredientDTO, Float> findUserShoppingList(Long userId);
+    Map<IngredientDTO, Float> findUserShoppingList(Long listId);
 
     @Transactional(readOnly = true)
-    Map<IngredientDTO, Float> findUserIngredients(Long userId);
+    Map<IngredientDTO, Float> findUserIngredients();
 
     @Transactional(readOnly = true)
-    List<IngredientDTO> findUserPurchasedIngredients(Long userId);
+    List<IngredientDTO> findUserPurchasedIngredients(Long listId);
 
     List<IngredientDTO> findAll();
 
@@ -23,9 +23,9 @@ public interface IngredientService {
 
     void delete(Long id);
 
-    IngredientDTO addIngredientToUser(Long userId, IngredientDTO ingredientDTO);
-    IngredientDTO addIngredientToShoppingList(Long userId, IngredientDTO ingredientDTO);
-    IngredientDTO addIngredientToPurchasedList(Long userId, IngredientDTO ingredientDTO);
+    IngredientDTO addIngredientToUser(IngredientDTO ingredientDTO);
+    IngredientDTO addIngredientToShoppingList(IngredientDTO ingredientDTO);
+    IngredientDTO addIngredientToPurchasedList(IngredientDTO ingredientDTO);
     IngredientDTO addIngredientToRecipe(Long recipeId, IngredientDTO ingredientDTO);
 
 //    List<IngredientDTO> findAllUserIngredients(Long userId);

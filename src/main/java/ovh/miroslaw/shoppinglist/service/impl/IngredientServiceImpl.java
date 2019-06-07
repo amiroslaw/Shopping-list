@@ -36,7 +36,8 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public IngredientDTO addIngredientToUser(Long userId, IngredientDTO ingredientDTO) {
+    public IngredientDTO addIngredientToUser(IngredientDTO ingredientDTO) {
+        Long userId = getCurrentUserId();
         Optional<User> user = userRepository.findOneById(userId);
         if (user.isEmpty()) {
             throw new ForbiddenException();
@@ -48,7 +49,8 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public IngredientDTO addIngredientToShoppingList(Long userId, IngredientDTO ingredientDTO) {
+    public IngredientDTO addIngredientToShoppingList(IngredientDTO ingredientDTO) {
+        Long userId = getCurrentUserId();
         Optional<User> user = userRepository.findOneById(userId);
         if (user.isEmpty()) {
             throw new ForbiddenException();
@@ -61,7 +63,8 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     @Transactional(readOnly = true)
-    public IngredientDTO addIngredientToPurchasedList(Long userId, IngredientDTO ingredientDTO) {
+    public IngredientDTO addIngredientToPurchasedList(IngredientDTO ingredientDTO) {
+        Long userId = getCurrentUserId();
         Optional<User> user = userRepository.findOneById(userId);
         if (user.isEmpty()) {
             throw new ForbiddenException();
@@ -83,6 +86,10 @@ public class IngredientServiceImpl implements IngredientService {
     private Ingredient findOrCreateIngredient(IngredientDTO ingredientDTO){
         final String nameInLowercase = ingredientDTO.getName().toLowerCase();
         return ingredientRepository.findByName(nameInLowercase)
+            .map(e -> {
+                e.setPopularity(e.getPopularity() + 1);
+                return ingredientRepository.save(e);
+            })
             .orElseGet(() -> {
                 Ingredient ing = ingredientMapper.toEntity(ingredientDTO);
                 ing = ingredientRepository.save(ing);
@@ -91,7 +98,8 @@ public class IngredientServiceImpl implements IngredientService {
     }
     @Override
     @Transactional(readOnly = true)
-    public Map<IngredientDTO, Float> findUserShoppingList(Long userId) {
+    public Map<IngredientDTO, Float> findUserShoppingList(Long listId) {
+        Long userId = getCurrentUserId();
         return userRepository.findUserWithEagerShoppingList(userId)
             .map(User::getShoppingList)
             .or(() -> Optional.of(Collections.emptyMap()))
@@ -104,7 +112,8 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<IngredientDTO, Float> findUserIngredients(Long userId) {
+    public Map<IngredientDTO, Float> findUserIngredients() {
+        Long userId = getCurrentUserId();
         return userRepository.findUserWithEagerIngredients(userId)
             .map(User::getUserIngredients)
             .or(() -> Optional.of(Collections.emptyMap()))
@@ -117,7 +126,8 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<IngredientDTO> findUserPurchasedIngredients(Long userId) {
+    public List<IngredientDTO> findUserPurchasedIngredients(Long listId) {
+        Long userId = getCurrentUserId();
         return userRepository.findPurchasedIngredients(userId)
             .stream()
             .map(ingredientMapper::toDto)
@@ -145,5 +155,9 @@ public class IngredientServiceImpl implements IngredientService {
     public void delete(Long id) {
         log.debug("Request to delete Ingredient : {}", id);
         ingredientRepository.deleteById(id);
+    }
+
+    private Long getCurrentUserId() {
+        return 1L;
     }
 }

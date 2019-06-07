@@ -34,10 +34,10 @@ public class IngredientResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
     @PostMapping("/api/user-ingredients")
-    public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientDTO ingredientDTO, @PathVariable Long userId) throws URISyntaxException {
+    public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientDTO result = ingredientService.addIngredientToUser(userId, ingredientDTO);
-        return ResponseEntity.created(new URI("/api/user/"+userId+"ingredients/" + result.getId())).body(result);
+        IngredientDTO result = ingredientService.addIngredientToUser(ingredientDTO);
+        return ResponseEntity.created(new URI("/api/ingredients/" + result.getId())).body(result);
     }
 
     /**
@@ -47,10 +47,10 @@ public class IngredientResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
     @PostMapping("/api/shopping-lists/{listId}/ingredients")
-    public ResponseEntity<IngredientDTO> createIngredientToShoppingList(@RequestBody IngredientDTO ingredientDTO, @PathVariable Long userId) throws URISyntaxException {
+    public ResponseEntity<IngredientDTO> createIngredientToShoppingList(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientDTO result = ingredientService.addIngredientToShoppingList(userId, ingredientDTO);
-        return ResponseEntity.created(new URI("/api/user/"+userId+"ingredients/" + result.getId())).body(result);
+        IngredientDTO result = ingredientService.addIngredientToShoppingList(ingredientDTO);
+        return ResponseEntity.created(new URI("/api/ingredients/" + result.getId())).body(result);
     }
     /**
      * POST  /ingredients : Create a new ingredient into purchased list
@@ -59,10 +59,10 @@ public class IngredientResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
     @PostMapping("/api/purchased-lists/{listId}/ingredients")
-    public ResponseEntity<IngredientDTO> createIngredientToPurchasedList(@RequestBody IngredientDTO ingredientDTO, @PathVariable Long userId) throws URISyntaxException {
+    public ResponseEntity<IngredientDTO> createIngredientToPurchasedList(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientDTO result = ingredientService.addIngredientToPurchasedList(userId, ingredientDTO);
-        return ResponseEntity.created(new URI("/api/user/"+userId+"ingredients/" + result.getId())).body(result);
+        IngredientDTO result = ingredientService.addIngredientToPurchasedList(ingredientDTO);
+        return ResponseEntity.created(new URI("/api/ingredients/" + result.getId())).body(result);
     }
     /**
      * GET  /ingredients : get all ingredients in shopping list.
@@ -70,9 +70,9 @@ public class IngredientResource {
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
     @GetMapping("/api/shopping-lists/{listId}/ingredients")
-    public Map<IngredientDTO, Float> findUserShoppingList(@PathVariable Long userId) {
+    public Map<IngredientDTO, Float> findUserShoppingList(@PathVariable Long listId) {
         log.debug("REST request to get all Ingredients");
-        return ingredientService.findUserShoppingList(userId);
+        return ingredientService.findUserShoppingList(listId);
     }
 
     /**
@@ -81,9 +81,9 @@ public class IngredientResource {
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
     @GetMapping("/api/purchased-lists/{listId}/ingredients")
-    public List<IngredientDTO> findUserPurchasedIngredients(@PathVariable Long userId) {
+    public List<IngredientDTO> findUserPurchasedIngredients(@PathVariable Long listId) {
         log.debug("REST request to get all Ingredients");
-        return ingredientService.findUserPurchasedIngredients(userId);
+        return ingredientService.findUserPurchasedIngredients(listId);
     }
 
     /**
@@ -92,9 +92,9 @@ public class IngredientResource {
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
     @GetMapping("/api/user-ingredients")
-    public Map<IngredientDTO, Float> findUserIngredients(@PathVariable Long userId) {
+    public Map<IngredientDTO, Float> findUserIngredients() {
         log.debug("REST request to get all Ingredients");
-        return ingredientService.findUserIngredients(userId);
+        return ingredientService.findUserIngredients();
     }
     /**
      * GET  /ingredients/:id : get the "id" ingredient.
