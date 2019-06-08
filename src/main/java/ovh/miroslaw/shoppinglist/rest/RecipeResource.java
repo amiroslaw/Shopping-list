@@ -15,8 +15,10 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 
+import static ovh.miroslaw.shoppinglist.config.Constants.API_VERSION;
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping(API_VERSION)
 public class RecipeResource {
 
     private final Logger log = LoggerFactory.getLogger(RecipeResource.class);

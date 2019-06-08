@@ -15,10 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static ovh.miroslaw.shoppinglist.config.Constants.API_VERSION;
+
 /**
  * REST controller for managing Ingredient.
  */
 @RestController
+@RequestMapping(API_VERSION)
 public class IngredientResource {
     private final Logger log = LoggerFactory.getLogger(IngredientResource.class);
     private final IngredientService ingredientService;
@@ -33,11 +36,11 @@ public class IngredientResource {
      * @param ingredientDTO the ingredientDTO to create
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
-    @PostMapping("/api/user-ingredients")
+    @PostMapping("/user-ingredients")
     public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
         IngredientDTO result = ingredientService.addIngredientToUser(ingredientDTO);
-        return ResponseEntity.created(new URI("/api/ingredients/" + result.getId())).body(result);
+        return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
 
     /**
@@ -46,11 +49,11 @@ public class IngredientResource {
      * @param ingredientDTO the ingredientDTO to create
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
-    @PostMapping("/api/shopping-lists/{listId}/ingredients")
+    @PostMapping("/shopping-lists/{listId}/ingredients")
     public ResponseEntity<IngredientDTO> createIngredientToShoppingList(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
         IngredientDTO result = ingredientService.addIngredientToShoppingList(ingredientDTO);
-        return ResponseEntity.created(new URI("/api/ingredients/" + result.getId())).body(result);
+        return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
     /**
      * POST  /ingredients : Create a new ingredient into purchased list
@@ -58,18 +61,18 @@ public class IngredientResource {
      * @param ingredientDTO the ingredientDTO to create
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
-    @PostMapping("/api/purchased-lists/{listId}/ingredients")
+    @PostMapping("/purchased-lists/{listId}/ingredients")
     public ResponseEntity<IngredientDTO> createIngredientToPurchasedList(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
         IngredientDTO result = ingredientService.addIngredientToPurchasedList(ingredientDTO);
-        return ResponseEntity.created(new URI("/api/ingredients/" + result.getId())).body(result);
+        return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
     /**
      * GET  /ingredients : get all ingredients in shopping list.
      *
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
-    @GetMapping("/api/shopping-lists/{listId}/ingredients")
+    @GetMapping("/shopping-lists/{listId}/ingredients")
     public Map<IngredientDTO, Float> findUserShoppingList(@PathVariable Long listId) {
         log.debug("REST request to get all Ingredients");
         return ingredientService.findUserShoppingList(listId);
@@ -80,7 +83,7 @@ public class IngredientResource {
      *
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
-    @GetMapping("/api/purchased-lists/{listId}/ingredients")
+    @GetMapping("/purchased-lists/{listId}/ingredients")
     public List<IngredientDTO> findUserPurchasedIngredients(@PathVariable Long listId) {
         log.debug("REST request to get all Ingredients");
         return ingredientService.findUserPurchasedIngredients(listId);
@@ -91,7 +94,7 @@ public class IngredientResource {
      *
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
-    @GetMapping("/api/user-ingredients")
+    @GetMapping("/user-ingredients")
     public Map<IngredientDTO, Float> findUserIngredients() {
         log.debug("REST request to get all Ingredients");
         return ingredientService.findUserIngredients();
@@ -102,7 +105,7 @@ public class IngredientResource {
      * @param id the id of the ingredientDTO to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the ingredientDTO, or with status 404 (Not Found)
      */
-    @GetMapping("/api/ingredients/{id}")
+    @GetMapping("/ingredients/{id}")
     public ResponseEntity<IngredientDTO> getIngredient(@PathVariable Long id) {
         log.debug("REST request to get Ingredient : {}", id);
         Optional<IngredientDTO> ingredientDTO = ingredientService.findOne(id);
@@ -113,7 +116,7 @@ public class IngredientResource {
      *
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
-    @GetMapping("/api/ingredients")
+    @GetMapping("/ingredients")
     public List<IngredientDTO> getAllIngredients() {
         log.debug("REST request to get all Ingredients");
         return ingredientService.findAll();
@@ -125,7 +128,7 @@ public class IngredientResource {
 //     * @param id the id of the ingredientDTO to delete
 //     * @return the ResponseEntity with status 200 (OK)
 //     */
-//    @DeleteMapping("/api/ingredients/{id}")
+//    @DeleteMapping("/ingredients/{id}")
 //    public ResponseEntity<Void> deleteIngredient(@PathVariable Long id ) {
 //        log.debug("REST request to delete Ingredient : {}", id);
 //        ingredientService.delete(id);
@@ -140,7 +143,7 @@ public class IngredientResource {
 //     * or with status 400 (Bad Request) if the ingredientDTO is not valid,
 //     * or with status 500 (Internal Server Error) if the ingredientDTO couldn't be updated
 //     */
-//    @PutMapping("/api/users/{userId}/ingredients")
+//    @PutMapping("/users/{userId}/ingredients")
 //    public ResponseEntity<IngredientDTO> updateIngredient(@Valid @RequestBody IngredientDTO ingredientDTO, @PathVariable String userId) {
 //        log.debug("REST request to update Ingredient : {}", ingredientDTO);
 //        if (ingredientDTO.getId() == null) {
