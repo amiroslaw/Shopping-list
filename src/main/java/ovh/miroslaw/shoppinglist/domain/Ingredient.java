@@ -25,7 +25,6 @@ public class Ingredient implements Serializable {
 
     private Integer popularity;
 
-
     @JsonIgnore
     @ManyToMany(mappedBy = "purchasedIngredients")
     private Set<User> purchasedIngredients = new HashSet<>();

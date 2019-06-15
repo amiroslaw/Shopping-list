@@ -8,6 +8,8 @@ import ovh.miroslaw.shoppinglist.service.IngredientService;
 import ovh.miroslaw.shoppinglist.domain.Ingredient;
 import ovh.miroslaw.shoppinglist.repository.IngredientRepository;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientWithPopularityDTO;
 import ovh.miroslaw.shoppinglist.service.mapper.IngredientMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,45 +38,31 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public IngredientDTO addIngredientToUser(IngredientDTO ingredientDTO) {
-        Long userId = getCurrentUserId();
-        Optional<User> user = userRepository.findOneById(userId);
-        if (user.isEmpty()) {
-            throw new ForbiddenException();
-            //TODO check for security. has logged user this ID
-        }
+    public IngredientWithAmountDTO addIngredientToUser(IngredientWithAmountDTO ingredientDTO) {
+        User user = getCurrentUser();
         Ingredient ingredient = findOrCreateIngredient(ingredientDTO);
-        user.get().addUserIngredient(ingredient, ingredientDTO.getAmount());
-        return ingredientMapper.toDto(ingredient, ingredientDTO.getAmount());
+        user.addUserIngredient(ingredient, ingredientDTO.getAmount());
+        userRepository.save(user);
+        return ingredientMapper.toDtoWithAmount(ingredient, ingredientDTO.getAmount());
     }
 
     @Override
-    public IngredientDTO addIngredientToShoppingList(IngredientDTO ingredientDTO) {
-        Long userId = getCurrentUserId();
-        Optional<User> user = userRepository.findOneById(userId);
-        if (user.isEmpty()) {
-            throw new ForbiddenException();
-            //TODO check for security. has logged user this ID
-        }
+    public IngredientWithAmountDTO addIngredientToShoppingList(IngredientWithAmountDTO ingredientDTO) {
+        User user = getCurrentUser();
         Ingredient ingredient = findOrCreateIngredient(ingredientDTO);
-        user.get().addIngredientToShoppingList(ingredient, ingredientDTO.getAmount());
-        return ingredientMapper.toDto(ingredient, ingredientDTO.getAmount());
+        user.addIngredientToShoppingList(ingredient, ingredientDTO.getAmount());
+        userRepository.save(user);
+        return ingredientMapper.toDtoWithAmount(ingredient, ingredientDTO.getAmount());
     }
 
     @Override
     @Transactional(readOnly = true)
     public IngredientDTO addIngredientToPurchasedList(IngredientDTO ingredientDTO) {
-        Long userId = getCurrentUserId();
-        Optional<User> user = userRepository.findOneById(userId);
-        if (user.isEmpty()) {
-            throw new ForbiddenException();
-            //TODO check for security. has logged user this ID
-        }
+        User user = getCurrentUser();
+        userRepository.save(user);
         Optional<Ingredient> ingredient = ingredientRepository.findByName(ingredientDTO.getName().toLowerCase());
-        if (ingredient.isEmpty()) {
-            throw new BadRequestException("Entity does not exits");
-        }
-        user.get().addPurchasedIngredient(ingredient.get());
+        user.addPurchasedIngredient(ingredient.get());
+        userRepository.save(user);
         return ingredientMapper.toDto(ingredient.get());
     }
 
@@ -83,7 +71,7 @@ public class IngredientServiceImpl implements IngredientService {
         return null;
     }
 
-    private Ingredient findOrCreateIngredient(IngredientDTO ingredientDTO){
+    private Ingredient findOrCreateIngredient(IngredientDTO ingredientDTO) {
         final String nameInLowercase = ingredientDTO.getName().toLowerCase();
         return ingredientRepository.findByName(nameInLowercase)
             .map(e -> {
@@ -91,16 +79,17 @@ public class IngredientServiceImpl implements IngredientService {
                 return ingredientRepository.save(e);
             })
             .orElseGet(() -> {
-                Ingredient ing = ingredientMapper.toEntity(ingredientDTO);
+                Ingredient ing = ingredientMapper.toEntityInitPopularity(ingredientDTO);
                 ing = ingredientRepository.save(ing);
                 return ing;
             });
     }
+
     @Override
     @Transactional(readOnly = true)
     public Map<IngredientDTO, Float> findUserShoppingList(Long listId) {
-        Long userId = getCurrentUserId();
-        return userRepository.findUserWithEagerShoppingList(userId)
+        User user = getCurrentUser();
+        return userRepository.findUserWithEagerShoppingList(user.getId())
             .map(User::getShoppingList)
             .or(() -> Optional.of(Collections.emptyMap()))
             .get().entrySet().stream()
@@ -113,8 +102,8 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     @Transactional(readOnly = true)
     public Map<IngredientDTO, Float> findUserIngredients() {
-        Long userId = getCurrentUserId();
-        return userRepository.findUserWithEagerIngredients(userId)
+        User user = getCurrentUser();
+        return userRepository.findUserWithEagerIngredients(user.getId())
             .map(User::getUserIngredients)
             .or(() -> Optional.of(Collections.emptyMap()))
             .get().entrySet().stream()
@@ -126,9 +115,21 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<IngredientWithAmountDTO> findUserIngredients2() {
+        User user = getCurrentUser();
+        return userRepository.findUserWithEagerIngredients(user.getId())
+            .map(User::getUserIngredients)
+            .or(() -> Optional.of(Collections.emptyMap()))
+            .get().entrySet().stream()
+            .map(e -> ingredientMapper.toDtoWithAmount(e.getKey(), e.getValue()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<IngredientDTO> findUserPurchasedIngredients(Long listId) {
-        Long userId = getCurrentUserId();
-        return userRepository.findPurchasedIngredients(userId)
+        User user = getCurrentUser();
+        return userRepository.findPurchasedIngredients(user.getId())
             .stream()
             .map(ingredientMapper::toDto)
             .collect(Collectors.toCollection(LinkedList::new));
@@ -139,7 +140,7 @@ public class IngredientServiceImpl implements IngredientService {
     public List<IngredientDTO> findAll() {
         log.debug("Request to get all Ingredients");
         return ingredientRepository.findAll().stream()
-            .map(ingredientMapper::toDto)
+            .map(ingredientMapper::toDtoWithPopularity)
             .collect(Collectors.toCollection(LinkedList::new));
     }
 
@@ -148,7 +149,7 @@ public class IngredientServiceImpl implements IngredientService {
     public Optional<IngredientDTO> findOne(Long id) {
         log.debug("Request to get Ingredient : {}", id);
         return ingredientRepository.findById(id)
-            .map(ingredientMapper::toDto);
+            .map(ingredientMapper::toDtoWithPopularity);
     }
 
     @Override
@@ -157,7 +158,9 @@ public class IngredientServiceImpl implements IngredientService {
         ingredientRepository.deleteById(id);
     }
 
-    private Long getCurrentUserId() {
-        return 1L;
+    private User getCurrentUser() {
+        //TODO get user from context
+        Optional<User> user = userRepository.findOneById(1L);
+        return user.orElseThrow(ForbiddenException::new);
     }
 }

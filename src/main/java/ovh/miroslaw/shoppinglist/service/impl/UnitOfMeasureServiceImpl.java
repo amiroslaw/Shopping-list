@@ -69,7 +69,7 @@ public class UnitOfMeasureServiceImpl implements UnitOfMeasureService {
 //        return StreamSupport
 //            .stream(unitOfMeasureRepository.findAll().spliterator(), false)
 //            .filter(unitOfMeasure -> unitOfMeasure.getIngredient() == null)
-//            .map(unitOfMeasureMapper::toDto)
+//            .map(unitOfMeasureMapper::toDtoWithAmount)
 //            .collect(Collectors.toCollection(LinkedList::new));
 //    }
 

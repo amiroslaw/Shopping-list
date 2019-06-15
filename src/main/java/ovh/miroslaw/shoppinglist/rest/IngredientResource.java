@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,9 +38,9 @@ public class IngredientResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
     @PostMapping("/user-ingredients")
-    public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
+    public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientWithAmountDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientDTO result = ingredientService.addIngredientToUser(ingredientDTO);
+        IngredientWithAmountDTO result = ingredientService.addIngredientToUser(ingredientDTO);
         return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
 
@@ -50,9 +51,9 @@ public class IngredientResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new ingredientDTO, or with status 400 (Bad Request) if the ingredient has already an ID
      */
     @PostMapping("/shopping-lists/{listId}/ingredients")
-    public ResponseEntity<IngredientDTO> createIngredientToShoppingList(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
+    public ResponseEntity<IngredientWithAmountDTO> createIngredientToShoppingList(@RequestBody IngredientWithAmountDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientDTO result = ingredientService.addIngredientToShoppingList(ingredientDTO);
+        IngredientWithAmountDTO result = ingredientService.addIngredientToShoppingList(ingredientDTO);
         return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
     /**
@@ -95,10 +96,15 @@ public class IngredientResource {
      * @return the ResponseEntity with status 200 (OK) and the list of ingredients in body
      */
     @GetMapping("/user-ingredients")
-    public Map<IngredientDTO, Float> findUserIngredients() {
+    public List<IngredientWithAmountDTO> findUserIngredients() {
         log.debug("REST request to get all Ingredients");
-        return ingredientService.findUserIngredients();
+        return ingredientService.findUserIngredients2();
     }
+//    @GetMapping("/user-ingredients")
+//    public Map<IngredientDTO, Float> findUserIngredients() {
+//        log.debug("REST request to get all Ingredients");
+//        return ingredientService.findUserIngredients();
+//    }
     /**
      * GET  /ingredients/:id : get the "id" ingredient.
      *

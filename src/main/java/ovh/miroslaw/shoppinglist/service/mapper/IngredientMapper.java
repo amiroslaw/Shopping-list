@@ -4,6 +4,13 @@ import ovh.miroslaw.shoppinglist.domain.*;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 
 import org.mapstruct.*;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
+import ovh.miroslaw.shoppinglist.service.dto.IngredientWithPopularityDTO;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Mapper for the entity Ingredient and its DTO IngredientDTO.
@@ -11,15 +18,26 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface IngredientMapper extends EntityMapper<IngredientDTO, Ingredient> {
 
-//    @Mapping(source = "unitOfMeasure.id", target = "unitOfMeasureId")
-    @Mapping(source = "ingredient.id", target = "id")
-    @Mapping(source = "ingredient.name", target = "name")
-    @Mapping(source = "ingredient.popularity", target = "popularity")
     @Mapping(source = "amount", target = "amount")
-    IngredientDTO toDto(Ingredient ingredient, Float amount);
-//    IngredientDTO toDto(Ingredient ingredient);
+    IngredientWithAmountDTO toDtoWithAmount(Ingredient ingredient, Float amount);
+
+    @Named("withPopularity")
+    IngredientWithPopularityDTO toDtoWithPopularity(Ingredient ingredient);
 
     Ingredient toEntity(IngredientDTO ingredientDTO);
+
+    @Named("initPopularity")
+    default Ingredient toEntityInitPopularity(IngredientDTO ingredientDTO) {
+        if ( ingredientDTO == null ) {
+            return null;
+        }
+        Ingredient ingredient = new Ingredient();
+        ingredient.setId( ingredientDTO.getId() );
+        ingredient.setName( ingredientDTO.getName() );
+        ingredient.setPopularity(1);
+
+        return ingredient;
+    }
 
     default Ingredient fromId(Long id) {
         if (id == null) {
@@ -29,4 +47,5 @@ public interface IngredientMapper extends EntityMapper<IngredientDTO, Ingredient
         ingredient.setId(id);
         return ingredient;
     }
+
 }

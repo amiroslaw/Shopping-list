@@ -1,33 +1,24 @@
 package ovh.miroslaw.shoppinglist.service.dto;
-import javax.validation.constraints.*;
+
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * A DTO for the Ingredient entity.
  */
-public class IngredientDTO implements Serializable {
+public class IngredientWithAmountDTO extends IngredientDTO implements Serializable {
 
-    private Long id;
+    private Float amount;
 
-    @NotNull
-    private String name;
-
-    public Long getId() {
-        return id;
+    public Float getAmount() {
+        return amount;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAmount(Float amount) {
+        this.amount = amount;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -37,7 +28,7 @@ public class IngredientDTO implements Serializable {
             return false;
         }
 
-        IngredientDTO ingredientDTO = (IngredientDTO) o;
+        IngredientWithAmountDTO ingredientDTO = (IngredientWithAmountDTO) o;
         if (ingredientDTO.getId() == null || getId() == null) {
             return false;
         }
@@ -52,8 +43,9 @@ public class IngredientDTO implements Serializable {
     @Override
     public String toString() {
         return "IngredientDTO{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
+            "id=" + super.getId() +
+            ", name='" + super.getName() + '\'' +
+            ", amount=" + amount +
             '}';
     }
 }
