@@ -2,14 +2,12 @@ package ovh.miroslaw.shoppinglist.service.impl;
 
 import ovh.miroslaw.shoppinglist.domain.User;
 import ovh.miroslaw.shoppinglist.repository.UserRepository;
-import ovh.miroslaw.shoppinglist.rest.errors.BadRequestException;
 import ovh.miroslaw.shoppinglist.rest.errors.ForbiddenException;
 import ovh.miroslaw.shoppinglist.service.IngredientService;
 import ovh.miroslaw.shoppinglist.domain.Ingredient;
 import ovh.miroslaw.shoppinglist.repository.IngredientRepository;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
-import ovh.miroslaw.shoppinglist.service.dto.IngredientWithPopularityDTO;
 import ovh.miroslaw.shoppinglist.service.mapper.IngredientMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,35 +85,18 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<IngredientDTO, Float> findUserShoppingList(Long listId) {
+    public List<IngredientWithAmountDTO> findUserShoppingList(Long listId) {
         User user = getCurrentUser();
         return userRepository.findUserWithEagerShoppingList(user.getId())
             .map(User::getShoppingList)
             .or(() -> Optional.of(Collections.emptyMap()))
             .get().entrySet().stream()
-            .collect(Collectors.toMap(
-                e -> ingredientMapper.toDto(e.getKey()),
-                e -> e.getValue()
-            ));
+            .map(e -> ingredientMapper.toDtoWithAmount(e.getKey(), e.getValue()))
+            .collect(Collectors.toList());
     }
-
     @Override
     @Transactional(readOnly = true)
-    public Map<IngredientDTO, Float> findUserIngredients() {
-        User user = getCurrentUser();
-        return userRepository.findUserWithEagerIngredients(user.getId())
-            .map(User::getUserIngredients)
-            .or(() -> Optional.of(Collections.emptyMap()))
-            .get().entrySet().stream()
-            .collect(Collectors.toMap(
-                e -> ingredientMapper.toDto(e.getKey()),
-                e -> e.getValue()
-            ));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<IngredientWithAmountDTO> findUserIngredients2() {
+    public List<IngredientWithAmountDTO> findUserIngredients() {
         User user = getCurrentUser();
         return userRepository.findUserWithEagerIngredients(user.getId())
             .map(User::getUserIngredients)

@@ -5,18 +5,16 @@ import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface IngredientService {
 
-    Map<IngredientDTO, Float> findUserShoppingList(Long listId);
 
     @Transactional(readOnly = true)
-    List<IngredientWithAmountDTO> findUserIngredients2();
+    List<IngredientWithAmountDTO> findUserShoppingList(Long listId);
 
     @Transactional(readOnly = true)
-    Map<IngredientDTO, Float> findUserIngredients();
+    List<IngredientWithAmountDTO> findUserIngredients();
 
     @Transactional(readOnly = true)
     List<IngredientDTO> findUserPurchasedIngredients(Long listId);
