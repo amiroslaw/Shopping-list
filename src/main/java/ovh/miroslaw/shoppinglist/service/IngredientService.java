@@ -13,6 +13,14 @@ public interface IngredientService {
     @Transactional(readOnly = true)
     List<IngredientWithAmountDTO> findUserShoppingList(Long listId);
 
+    IngredientWithAmountDTO addIngredientToShoppingList(IngredientWithAmountDTO ingredientDTO);
+
+    IngredientWithAmountDTO editIngredientToShoppingList(IngredientWithAmountDTO ingredient);
+
+    void deleteIngredientFromShoppingList(Long id);
+
+    void deleteAllIngredientFromShoppingList();
+
     @Transactional(readOnly = true)
     List<IngredientWithAmountDTO> findUserIngredients();
 
@@ -27,10 +35,12 @@ public interface IngredientService {
 
     IngredientWithAmountDTO addIngredientToUser(IngredientWithAmountDTO ingredientDTO);
 
-    IngredientWithAmountDTO addIngredientToShoppingList(IngredientWithAmountDTO ingredientDTO);
 
     IngredientDTO addIngredientToPurchasedList(IngredientDTO ingredientDTO);
+
     IngredientDTO addIngredientToRecipe(Long recipeId, IngredientDTO ingredientDTO);
+
+    void purchasedIngredient(Long ingredientId);
 
 //    List<IngredientDTO> findAllUserIngredients(Long userId);
 }

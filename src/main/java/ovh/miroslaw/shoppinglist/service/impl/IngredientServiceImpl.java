@@ -2,6 +2,7 @@ package ovh.miroslaw.shoppinglist.service.impl;
 
 import ovh.miroslaw.shoppinglist.domain.User;
 import ovh.miroslaw.shoppinglist.repository.UserRepository;
+import ovh.miroslaw.shoppinglist.rest.errors.BadRequestException;
 import ovh.miroslaw.shoppinglist.rest.errors.ForbiddenException;
 import ovh.miroslaw.shoppinglist.service.IngredientService;
 import ovh.miroslaw.shoppinglist.domain.Ingredient;
@@ -54,10 +55,72 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
+    public IngredientWithAmountDTO editIngredientToShoppingList(IngredientWithAmountDTO ingredientDTO) {
+        User user = getCurrentUser();
+        Ingredient oldIngredient = ingredientRepository.findById(ingredientDTO.getId())
+            .orElseThrow(BadRequestException::new);
+        Map<Ingredient, Float> shoppingList = user.getShoppingList();
+        boolean nameChanged = !oldIngredient.getName().equals(ingredientDTO.getName());
+        if (nameChanged) {
+            ingredientDTO = exchangeIngredient(ingredientDTO, oldIngredient, shoppingList);
+        } else {
+            shoppingList.put(ingredientMapper.toEntity(ingredientDTO), ingredientDTO.getAmount());
+        }
+        userRepository.save(user);
+        return ingredientDTO;
+    }
+
+    @Override
+    public void deleteIngredientFromShoppingList(Long id) {
+        User user = getCurrentUser();
+        Map<Ingredient, Float> shoppingList = user.getShoppingList();
+        Ingredient ingredient = getIngredientByIdFromMap(id, shoppingList);
+        shoppingList.remove(ingredient);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void purchasedIngredient(Long ingredientId) {
+        User user = getCurrentUser();
+        Map<Ingredient, Float> shoppingList = user.getShoppingList();
+        Ingredient ingredient = getIngredientByIdFromMap(ingredientId, shoppingList);
+        user.getPurchasedIngredients().add(ingredient);
+        user.getUserIngredients().put(ingredient, shoppingList.get(ingredient));
+        shoppingList.remove(ingredient);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteAllIngredientFromShoppingList() {
+        User user = getCurrentUser();
+        user.setShoppingList(null);
+        userRepository.save(user);
+    }
+
+    private Ingredient getIngredientByIdFromMap(Long id, Map<Ingredient, Float> shoppingList) {
+        Map<Long, Ingredient> longIngredientMap = shoppingList
+            .entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> entry.getKey().getId(),
+                entry -> entry.getKey())
+        );
+        return Optional.ofNullable(longIngredientMap.get(id))
+            .orElseThrow(BadRequestException::new);
+    }
+
+    private IngredientWithAmountDTO exchangeIngredient(IngredientWithAmountDTO ingredientDTO, Ingredient oldIngredient, Map<Ingredient, Float> ingredientMap) {
+        ingredientMap.remove(oldIngredient);
+        ingredientDTO.setId(null);
+        Ingredient newIngredient = findOrCreateIngredient(ingredientDTO);
+        ingredientMap.put(newIngredient, ingredientDTO.getAmount());
+        ingredientDTO = ingredientMapper.toDtoWithAmount(newIngredient, ingredientDTO.getAmount());
+        return ingredientDTO;
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public IngredientDTO addIngredientToPurchasedList(IngredientDTO ingredientDTO) {
         User user = getCurrentUser();
-        userRepository.save(user);
         Optional<Ingredient> ingredient = ingredientRepository.findByName(ingredientDTO.getName().toLowerCase());
         user.addPurchasedIngredient(ingredient.get());
         userRepository.save(user);
@@ -78,8 +141,7 @@ public class IngredientServiceImpl implements IngredientService {
             })
             .orElseGet(() -> {
                 Ingredient ing = ingredientMapper.toEntityInitPopularity(ingredientDTO);
-                ing = ingredientRepository.save(ing);
-                return ing;
+                return ingredientRepository.save(ing);
             });
     }
 
@@ -94,6 +156,7 @@ public class IngredientServiceImpl implements IngredientService {
             .map(e -> ingredientMapper.toDtoWithAmount(e.getKey(), e.getValue()))
             .collect(Collectors.toList());
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<IngredientWithAmountDTO> findUserIngredients() {

@@ -1,6 +1,5 @@
 package ovh.miroslaw.shoppinglist.service.dto;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -8,7 +7,6 @@ import java.util.Objects;
  * A DTO for the Ingredient entity.
  */
 public class IngredientWithAmountDTO extends IngredientDTO implements Serializable {
-
     private Float amount;
 
     public Float getAmount() {
