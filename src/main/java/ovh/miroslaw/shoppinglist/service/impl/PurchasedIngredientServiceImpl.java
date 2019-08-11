@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,37 +28,39 @@ public class PurchasedIngredientServiceImpl implements PurchasedIngredientServic
 
     private final Logger log = LoggerFactory.getLogger(PurchasedIngredientServiceImpl.class);
 
-    private final IngredientRepository ingredientRepository;
-
     private final IngredientMapper ingredientMapper;
     private final UserRepository userRepository;
 
-    public PurchasedIngredientServiceImpl(IngredientRepository ingredientRepository, IngredientMapper ingredientMapper, UserRepository userRepository) {
-        this.ingredientRepository = ingredientRepository;
+    public PurchasedIngredientServiceImpl(IngredientMapper ingredientMapper, UserRepository userRepository) {
         this.ingredientMapper = ingredientMapper;
         this.userRepository = userRepository;
     }
 
-
-    private Ingredient getIngredientByIdFromMap(Long id, Map<Ingredient, Float> shoppingList) {
-        Map<Long, Ingredient> longIngredientMap = shoppingList
-            .entrySet().stream()
-            .collect(Collectors.toMap(
-                entry -> entry.getKey().getId(),
-                entry -> entry.getKey())
-        );
-        return Optional.ofNullable(longIngredientMap.get(id))
-            .orElseThrow(BadRequestException::new);
+    @Override
+    public void addIngredientToShoppingList(Long ingredientId) {
+        User user = getCurrentUser();
+        Set<Ingredient> purchasedIngredients = user.getPurchasedIngredients();
+        Ingredient ingredient = getIngredientByIdFromSet(ingredientId, purchasedIngredients);
+        purchasedIngredients.remove(ingredient);
+        user.getShoppingList().put(ingredient, 1F);
+        userRepository.save(user);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public IngredientDTO addIngredientToPurchasedList(IngredientDTO ingredientDTO) {
+    public void deleteIngredient(Long id) {
         User user = getCurrentUser();
-        Optional<Ingredient> ingredient = ingredientRepository.findByName(ingredientDTO.getName().toLowerCase());
-        user.addPurchasedIngredient(ingredient.get());
+        Set<Ingredient> purchasedIngredients = user.getPurchasedIngredients();
+        Ingredient deletedIngredient = getIngredientByIdFromSet(id, purchasedIngredients);
+        purchasedIngredients.remove(deletedIngredient);
         userRepository.save(user);
-        return ingredientMapper.toDto(ingredient.get());
+    }
+
+    private Ingredient getIngredientByIdFromSet(Long id, Set<Ingredient> ingredientSet) {
+        return ingredientSet
+            .stream()
+            .filter(e -> e.getId().equals(id))
+            .findFirst()
+            .orElseThrow(BadRequestException::new);
     }
 
     @Override

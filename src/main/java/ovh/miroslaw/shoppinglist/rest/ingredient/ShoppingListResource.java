@@ -1,5 +1,6 @@
 package ovh.miroslaw.shoppinglist.rest.ingredient;
 
+import org.hibernate.annotations.Fetch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
