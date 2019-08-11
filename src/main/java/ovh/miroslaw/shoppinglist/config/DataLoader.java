@@ -14,7 +14,10 @@ import ovh.miroslaw.shoppinglist.domain.User;
 import ovh.miroslaw.shoppinglist.domain.enumeration.Difficulty;
 import ovh.miroslaw.shoppinglist.repository.*;
 import ovh.miroslaw.shoppinglist.service.IngredientService;
+import ovh.miroslaw.shoppinglist.service.PurchasedIngredientService;
 import ovh.miroslaw.shoppinglist.service.RecipeService;
+import ovh.miroslaw.shoppinglist.service.ShoppingListService;
+import ovh.miroslaw.shoppinglist.service.UserIngredientService;
 import ovh.miroslaw.shoppinglist.service.UserService;
 
 import java.util.*;
@@ -36,9 +39,17 @@ public class DataLoader implements ApplicationRunner {
     @Autowired
     private UserService userService;
     private IngredientService ingredientService;
+    private ShoppingListService shoppingListService;
+    private PurchasedIngredientService purchasedIngredientService;
+    private UserIngredientService userIngredientService;
 
     @Autowired
-    DataLoader(IngredientRepository ingredientRepository, RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, IngredientService ingredientService) {
+    DataLoader(IngredientRepository ingredientRepository, RecipeRepository recipeRepository,
+        UnitOfMeasureRepository unitOfMeasureRepository, UserRepository userRepository, PasswordEncoder passwordEncoder,
+        AuthorityRepository authorityRepository, IngredientService ingredientService,
+        ShoppingListService shoppingListService,
+        PurchasedIngredientService purchasedIngredientService,
+        UserIngredientService userIngredientService) {
         this.ingredientRepository = ingredientRepository;
         this.recipeRepository = recipeRepository;
         this.unitOfMeasureRepository = unitOfMeasureRepository;
@@ -46,6 +57,9 @@ public class DataLoader implements ApplicationRunner {
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.ingredientService = ingredientService;
+        this.shoppingListService = shoppingListService;
+        this.purchasedIngredientService = purchasedIngredientService;
+        this.userIngredientService = userIngredientService;
     }
 
     @Override
@@ -105,7 +119,7 @@ public class DataLoader implements ApplicationRunner {
         System.out.println(users);
 
         log.debug("shoppinglist");
-        System.out.println(ingredientService.findUserShoppingList(users.get(0).getId()));
+        System.out.println(shoppingListService.findShoppingListByUser(users.get(0).getId()));
 
         log.debug("purchased ing");
         System.out.println(userRepository.findPurchasedIngredients(users.get(0).getId()));

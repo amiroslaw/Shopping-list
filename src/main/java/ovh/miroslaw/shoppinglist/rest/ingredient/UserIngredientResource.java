@@ -1,6 +1,6 @@
 package ovh.miroslaw.shoppinglist.rest.ingredient;
 
-import ovh.miroslaw.shoppinglist.service.IngredientService;
+import ovh.miroslaw.shoppinglist.service.UserIngredientService;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,23 +22,23 @@ import static ovh.miroslaw.shoppinglist.config.Constants.API_VERSION;
 @RequestMapping(API_VERSION + "/user-ingredients")
 public class UserIngredientResource {
     private final Logger log = LoggerFactory.getLogger(UserIngredientResource.class);
-    private final IngredientService ingredientService;
+    private final UserIngredientService userIngredientService;
 
-    public UserIngredientResource(IngredientService ingredientService) {
-        this.ingredientService = ingredientService;
+    public UserIngredientResource(UserIngredientService userIngredientService) {
+        this.userIngredientService = userIngredientService;
     }
 
     @PostMapping
     public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientWithAmountDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientWithAmountDTO result = ingredientService.addIngredientToUser(ingredientDTO);
+        IngredientWithAmountDTO result = userIngredientService.addIngredientToUser(ingredientDTO);
         return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
 
     @GetMapping
     public List<IngredientWithAmountDTO> findUserIngredients() {
         log.debug("REST request to get all Ingredients");
-        return ingredientService.findUserIngredients();
+        return userIngredientService.findUserIngredients();
     }
 
 }

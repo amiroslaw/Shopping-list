@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ovh.miroslaw.shoppinglist.service.IngredientService;
+import ovh.miroslaw.shoppinglist.service.PurchasedIngredientService;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientDTO;
 
 import java.net.URI;
@@ -24,24 +24,26 @@ import static ovh.miroslaw.shoppinglist.config.Constants.API_VERSION;
 @RestController
 @RequestMapping(API_VERSION + "/purchased-lists")
 public class PurchasedIngredientResource {
-    private final Logger log = LoggerFactory.getLogger(PurchasedIngredientResource.class);
-    private final IngredientService ingredientService;
 
-    public PurchasedIngredientResource(IngredientService ingredientService) {
-        this.ingredientService = ingredientService;
+    private final Logger log = LoggerFactory.getLogger(PurchasedIngredientResource.class);
+    private final PurchasedIngredientService purchasedIngredientService;
+
+    public PurchasedIngredientResource(PurchasedIngredientService purchasedIngredientService) {
+        this.purchasedIngredientService = purchasedIngredientService;
     }
 
     @PostMapping("/purchased-lists/{listId}/ingredients")
-    public ResponseEntity<IngredientDTO> createIngredientToPurchasedList(@RequestBody IngredientDTO ingredientDTO) throws URISyntaxException {
+    public ResponseEntity<IngredientDTO> createIngredientToPurchasedList(@RequestBody IngredientDTO ingredientDTO)
+        throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientDTO result = ingredientService.addIngredientToPurchasedList(ingredientDTO);
+        IngredientDTO result = purchasedIngredientService.addIngredientToPurchasedList(ingredientDTO);
         return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
 
     @GetMapping("/purchased-lists/{listId}/ingredients")
     public List<IngredientDTO> findUserPurchasedIngredients(@PathVariable Long listId) {
         log.debug("REST request to get all Ingredients");
-        return ingredientService.findUserPurchasedIngredients(listId);
+        return purchasedIngredientService.findUserPurchasedIngredients(listId);
     }
 
 }

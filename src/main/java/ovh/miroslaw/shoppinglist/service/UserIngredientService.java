@@ -7,15 +7,13 @@ import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
 import java.util.List;
 import java.util.Optional;
 
-public interface IngredientService {
+public interface UserIngredientService {
 
 
-    List<IngredientDTO> findAll();
+    @Transactional(readOnly = true)
+    List<IngredientWithAmountDTO> findUserIngredients();
 
-    Optional<IngredientDTO> findOne(Long id);
+    IngredientWithAmountDTO addIngredientToUser(IngredientWithAmountDTO ingredientDTO);
 
-    void delete(Long id);
-
-    IngredientDTO addIngredientToRecipe(Long recipeId, IngredientDTO ingredientDTO);
-
+//    List<IngredientDTO> findAllUserIngredients(Long userId);
 }
