@@ -12,6 +12,7 @@ import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
 import ovh.miroslaw.shoppinglist.service.mapper.IngredientMapper;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,13 +29,13 @@ public class IngredientUtil {
         this.userRepository = userRepository;
     }
 
-    public User getCurrentUser() {
+    User getCurrentUser() {
         //TODO get user from context
         Optional<User> user = userRepository.findOneById(1L);
         return user.orElseThrow(ForbiddenException::new);
     }
 
-    protected IngredientWithAmountDTO exchangeIngredient(IngredientWithAmountDTO ingredientDTO, Ingredient oldIngredient,
+    IngredientWithAmountDTO exchangeIngredient(IngredientWithAmountDTO ingredientDTO, Ingredient oldIngredient,
         Map<Ingredient, Float> ingredientMap) {
         ingredientMap.remove(oldIngredient);
         ingredientDTO.setId(null);
@@ -44,7 +45,7 @@ public class IngredientUtil {
         return ingredientDTO;
     }
 
-    protected Ingredient findOrCreateIngredient(IngredientDTO ingredientDTO) {
+    Ingredient findOrCreateIngredient(IngredientDTO ingredientDTO) {
         ingredientDTO.setId(null);
         final String nameInLowercase = ingredientDTO.getName().toLowerCase();
         return ingredientRepository.findByName(nameInLowercase)
@@ -64,8 +65,8 @@ public class IngredientUtil {
             throw new BadRequestException();
         }
     }
-    Ingredient getIngredientByIdFromMap(Long id, Map<Ingredient, Float> shoppingList) {
-        Map<Long, Ingredient> longIngredientMap = shoppingList
+    Ingredient getIngredientByIdFromMap(Long id, Map<Ingredient, Float> ingredientMap) {
+        Map<Long, Ingredient> longIngredientMap = ingredientMap
             .entrySet().stream()
             .collect(Collectors.toMap(
                 entry -> entry.getKey().getId(),
@@ -74,5 +75,14 @@ public class IngredientUtil {
         return Optional.ofNullable(longIngredientMap.get(id))
             .orElseThrow(BadRequestException::new);
     }
+
+    Ingredient getIngredientByIdFromSet(Long id, Set<Ingredient> ingredientSet) {
+        return ingredientSet
+            .stream()
+            .filter(e -> e.getId().equals(id))
+            .findFirst()
+            .orElseThrow(BadRequestException::new);
+    }
+
 }
 

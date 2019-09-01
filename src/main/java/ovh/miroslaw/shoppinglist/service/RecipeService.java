@@ -22,7 +22,7 @@ public interface RecipeService {
     List<RecipeDTO> findAll();
 
     Page<RecipeDTO> findAllWithEagerRelationships(Pageable pageable);
-    
+
     Optional<RecipeDTO> findOneWithEagerIngredients(Long id);
 
     void delete(Long id);
