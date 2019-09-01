@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import static ovh.miroslaw.shoppinglist.config.Constants.API_VERSION;
 
 /**
@@ -31,7 +33,7 @@ public class UserIngredientResource {
     @PostMapping
     public ResponseEntity<IngredientDTO> createUserIngredient(@RequestBody IngredientWithAmountDTO ingredientDTO) throws URISyntaxException {
         log.debug("REST request to save Ingredient : {}", ingredientDTO);
-        IngredientWithAmountDTO result = userIngredientService.addIngredientToUser(ingredientDTO);
+        IngredientWithAmountDTO result = userIngredientService.addIngredient(ingredientDTO);
         return ResponseEntity.created(new URI(API_VERSION + "/ingredients/" + result.getId())).body(result);
     }
 
@@ -41,4 +43,23 @@ public class UserIngredientResource {
         return userIngredientService.findUserIngredients();
     }
 
+    @PutMapping("/{ingredientId}")
+    public ResponseEntity<IngredientWithAmountDTO> updateIngredient(@Valid @RequestBody IngredientWithAmountDTO ingredient, @PathVariable Long ingredientId) {
+        log.debug("REST request to update Ingredient : {}", ingredientId);
+        IngredientWithAmountDTO result = userIngredientService.editIngredient(ingredient, ingredientId);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @PatchMapping("/{ingredientId}")
+    public ResponseEntity<Void> purchaseIngredient(@PathVariable Long ingredientId) {
+        userIngredientService.addIngredientToShoppingList(ingredientId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{ingredientId}")
+    public ResponseEntity<Void> deleteIngredient(@PathVariable Long ingredientId) {
+        log.debug("REST request to delete Ingredient : {}", ingredientId);
+        userIngredientService.deleteIngredient(ingredientId);
+        return ResponseEntity.ok().build();
+    }
 }

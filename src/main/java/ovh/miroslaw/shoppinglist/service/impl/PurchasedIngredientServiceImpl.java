@@ -42,7 +42,7 @@ public class PurchasedIngredientServiceImpl implements PurchasedIngredientServic
         Set<Ingredient> purchasedIngredients = user.getPurchasedIngredients();
         Ingredient ingredient = getIngredientByIdFromSet(ingredientId, purchasedIngredients);
         purchasedIngredients.remove(ingredient);
-        user.getShoppingList().put(ingredient, 1F);
+        user.getShoppingList().put(ingredient, 0F);
         userRepository.save(user);
     }
 

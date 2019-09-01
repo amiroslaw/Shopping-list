@@ -27,10 +27,9 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     private final Logger log = LoggerFactory.getLogger(ShoppingListServiceImpl.class);
 
-    private final IngredientRepository ingredientRepository;
-
-    private final IngredientMapper ingredientMapper;
     private final UserRepository userRepository;
+    private final IngredientMapper ingredientMapper;
+    private final IngredientRepository ingredientRepository;
 
     public ShoppingListServiceImpl(IngredientRepository ingredientRepository, IngredientMapper ingredientMapper, UserRepository userRepository) {
         this.ingredientRepository = ingredientRepository;
@@ -49,6 +48,17 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         userRepository.save(user);
     }
 
+    private Ingredient getIngredientByIdFromMap(Long id, Map<Ingredient, Float> shoppingList) {
+        Map<Long, Ingredient> longIngredientMap = shoppingList
+            .entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> entry.getKey().getId(),
+                entry -> entry.getKey())
+            );
+        return Optional.ofNullable(longIngredientMap.get(id))
+            .orElseThrow(BadRequestException::new);
+    }
+
     @Override
     public IngredientWithAmountDTO addIngredient(IngredientWithAmountDTO ingredientDTO) {
         User user = getCurrentUser();
@@ -61,6 +71,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     public IngredientWithAmountDTO editIngredient(IngredientWithAmountDTO ingredientDTO, Long ingredientId) {
         User user = getCurrentUser();
+        validateAmount(ingredientDTO.getAmount());
         Ingredient oldIngredient = ingredientRepository.findById(ingredientId)
             .orElseThrow(BadRequestException::new);
         Map<Ingredient, Float> shoppingList = user.getShoppingList();
@@ -72,6 +83,13 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         }
         userRepository.save(user);
         return ingredientDTO;
+    }
+
+    private void validateAmount(Float amount) {
+        boolean invalidAmount = amount.isNaN() || amount < 1.0;
+        if (invalidAmount) {
+            throw new BadRequestException();
+        }
     }
 
     @Override
@@ -88,17 +106,6 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         User user = getCurrentUser();
         user.setShoppingList(null);
         userRepository.save(user);
-    }
-
-    private Ingredient getIngredientByIdFromMap(Long id, Map<Ingredient, Float> shoppingList) {
-        Map<Long, Ingredient> longIngredientMap = shoppingList
-            .entrySet().stream()
-            .collect(Collectors.toMap(
-                entry -> entry.getKey().getId(),
-                entry -> entry.getKey())
-        );
-        return Optional.ofNullable(longIngredientMap.get(id))
-            .orElseThrow(BadRequestException::new);
     }
 
     private IngredientWithAmountDTO exchangeIngredient(IngredientWithAmountDTO ingredientDTO, Ingredient oldIngredient, Map<Ingredient, Float> ingredientMap) {

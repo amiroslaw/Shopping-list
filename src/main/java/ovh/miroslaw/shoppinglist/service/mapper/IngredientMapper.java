@@ -7,11 +7,6 @@ import org.mapstruct.*;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientWithAmountDTO;
 import ovh.miroslaw.shoppinglist.service.dto.IngredientWithPopularityDTO;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * Mapper for the entity Ingredient and its DTO IngredientDTO.
  */
