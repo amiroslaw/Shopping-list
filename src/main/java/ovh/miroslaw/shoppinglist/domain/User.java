@@ -222,14 +222,10 @@ public class User implements Serializable {
         shoppingList.put(ingredient, amount);
         return this;
     }
-    public User removeIngredientFromShoppingList(Ingredient ingredient) {
-        shoppingList.remove(ingredient);
-        return this;
-    }
-
     public Map<Ingredient, Float> getUserIngredients() {
         return userIngredients;
     }
+
     public void setUserIngredients(Map<Ingredient, Float> userIngredients) {
         this.userIngredients = userIngredients;
     }
@@ -239,6 +235,10 @@ public class User implements Serializable {
     }
     public User addUserIngredient(Ingredient ingredient, Float amount) {
         userIngredients.put(ingredient, amount);
+        return this;
+    }
+    public User removeIngredientFromShoppingList(Ingredient ingredient) {
+        shoppingList.remove(ingredient);
         return this;
     }
     public User removeUserIngredient(Ingredient ingredient) {

@@ -65,8 +65,8 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
-        User normalUser = createUser("Hulio", "pass", "hulio", "hulio@gmail.com", true, "ROLE_USER");
-        User user = createUser("Miro", "pass", "miro", "miro@gmail.com", true, "ROLE_USER");
+        User normalUser = createUser("Hulio", "pass11", "hulio", "hulio@gmail.com", true, "ROLE_USER");
+        User user = createUser("Miro", "pass11", "miro", "miro@gmail.com", true, "ROLE_USER");
         userRepository.save(user);
 
         Ingredient pasta = createIngredient("MAKARON", 2);
