@@ -18,6 +18,8 @@ public class LoginVM {
 
     private Boolean rememberMe;
 
+    public LoginVM() {
+    }
     public LoginVM(String username, String password, boolean rememberMe) {
         this.username = username;
         this.password = password;

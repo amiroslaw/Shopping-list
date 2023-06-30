@@ -1,8 +1,64 @@
 = Shopping List
+This web application helps to create meal plans, find recipes based on that meal, and organize grocery lists around those recipes and what you have in your fridge.
 
-The web application that helps you create meal plans, find recipes based on that meal, and organize grocery lists around those recipes and what you have in your fridge.
-This repository has only backend part.
+.Features:
+* Creating a grocery list
+* Managing purchased ingredients
+* Create the recipes and share them with others
+* Finding a recipe that you can make from your purchased ingredients
+* Unit and integration tests
+* Documentation
+
 
 === Used technology
+This repository has only the backend part, that exposes REST API. Security is achieved by the JWT tokens. Frontend is located in the https://github.com/amiroslaw/shopping-list-angular[shopping-list-angular] repository.
 
-Spring Boot, Spring MVC, Spring Security, Java 11, Hibernate, H2, mySql, Java JWT
+Spring Boot (Spring MVC, Spring Security - JWT), Java 11, Hibernate, JUnit, Mockito, JHipster
+
+=== Development
+There are two development branches `prod` and `dev` for production and development. Production uses Postgres database and production h2, with prepared example data. There is option to log in with sample credentials in order to test the application.
+
+.Authentication
+|===
+| role  | login  | password
+
+| administrator  | admin  | passff
+| user | hulio | passff
+|===
+
+In order to run the application, execute the command:
+
+[source,bash]
+----
+./mvnw spring-boot:run
+----
+
+Then navigate to http://localhost:8080[http://localhost:8080] in your browser.
+There are available and console for the developer branch.
+http://localhost:8080/swagger-ui.html[Swagger] and http://localhost:8080/console[h2 console] are available for the developer branch.
+
+To launch application's tests, run:
+
+[source,bash]
+----
+./mvnw verify
+----
+
+==== Environments
+Production branch needs environments for mail service and Postgres.
+
+.properties for mail service
+[source,bash]
+----
+export SPRING_MAIL_USERNAME=yourEmail@com
+export SPRING_MAIL_PASSWORD=password
+----
+
+.properties for Postgres dB
+----
+PROD_DB_HOST
+PROD_DB_NAME
+PROD_DB_USERNAME
+PROD_DB_PASSWORD
+----
+
