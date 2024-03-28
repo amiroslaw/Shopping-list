@@ -8,7 +8,7 @@ RUN mvn clean package -Pprod -DskipTests
 #
 # Package stage
 #
-FROM openjdk:11-jdk-slim
+FROM eclipse-temurin:21-jre-alpine
 COPY --from=build /target/shoppinglist-0.0.1-SNAPSHOT.jar shoppinglist.jar
 # ENV PORT=8080
 EXPOSE 8080
